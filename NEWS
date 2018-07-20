@@ -22,7 +22,7 @@ Si label = TRUE mais qu'une variable n'a pas de label, affiche son nom
 biostat2 0.4.1
 --------------
 
-Correction d'un bug mineur quand addCrosTable(compact = TRUE) est
+Correction d'un bug mineur quand addCrossTable(compact = TRUE) est
 utilisé sur une table avec une seule ligne
 
 biostat2 0.5
@@ -100,3 +100,22 @@ biostat2 0.8.6
 --------------
 
 * Correction d'un bug avec l'option compact de FlexCrossTable : erreur quand une colonne "NA" existait dans le tableau
+
+biostat2 0.9.0
+--------------
+
+* Compatible avec officer et flextable. La compatibilité avec ReporteRs est toujours dans le package, mais ReporteRs
+  n'est maintenant plus sur le site du CRAN. 
+* Nouvelle argument ('effect = TRUE ou FALSE', FALSE par défaut), qui permet de rajouter une nouvelle colonne 
+  indiquant une mesure d'association (différence de moyenne, OR, RR, etc). Les mesures d'association sont calculées 
+  par les fonctions indiquée dans les arguments effect.summarize, effect.tabular et effect.survival. 
+* Nouvel algorithme par défaut concernant le choix du test pour comparer deux moyennes : le test de Wilcoxon n'est plus 
+  fait systématiquement quand les effectifs sont < 30. Il n'est fait qu'en cas d'écart à la normalité. 
+  Le test de la normalité n'est plus systématiquement un test de Shapiro (oui si l'un des effectifs est < 50, mais sinon, 
+  test de Anderson-Darling). L'ancien algorithme est toujours disponible dans le package, dans la fonction test.summarize.auto.old 
+  ('cross([...], test = TRUE, test.summarize = test.summarize.auto.old)').
+  
+biostat2 0.9.1
+--------------
+
+* Entête rétabli dans les documents officer

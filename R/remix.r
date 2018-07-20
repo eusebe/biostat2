@@ -46,7 +46,7 @@ is.numeric.and.not.surv <- function(x) {
 ##'
 ##' @author David Hajage
 ##' @keywords internal
-cross_one <- function(x, y = NULL, funs = c(mean, sd, quantile, n, na), ..., margin = 0:2, total = FALSE, digits = 2, showNA = c("no", "ifany", "always"), method = c("pearson", "kendall", "spearman"), times = NULL, followup = FALSE, test = FALSE, test.tabular = test.tabular.auto, test.summarize = test.summarize.auto, test.survival = test.survival.logrank, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.summarize = diff.mean.auto, effect.tabular = or.row.by.col, effect.survival = effect.survival.coxph, conf.level = 0.95, label = FALSE) {
+cross_one <- function(x, y = NULL, funs = NULL, ..., margin = 0:2, total = FALSE, digits = 2, showNA = c("no", "ifany", "always"), method = c("pearson", "kendall", "spearman"), times = NULL, followup = FALSE, test = FALSE, test.tabular = test.tabular.auto, test.summarize = test.summarize.auto, test.survival = test.survival.logrank, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.summarize = effect.diff.mean.auto, effect.tabular = effect.or.row.by.col, effect.survival = effect.survival.coxph, conf.level = 0.95, label = FALSE) {
   if (!is.character(funs)) {
       nomf <- names(funs)
       funs <- as.character(as.list(substitute(funs)))
@@ -129,7 +129,7 @@ cross_one <- function(x, y = NULL, funs = c(mean, sd, quantile, n, na), ..., mar
 ##'
 ##' @author David Hajage
 ##' @keywords internal
-cross_all <- function(x, y = NULL, funs = c(mean, sd, quantile, n, na), ..., margin = 0:2, total = FALSE, digits = 2, showNA = c("no", "ifany", "always"), method = c("pearson", "kendall", "spearman"), times = NULL, followup = FALSE, test = FALSE, test.tabular = test.tabular.auto, test.summarize = test.summarize.auto, test.survival = test.survival.logrank, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.summarize = diff.mean.auto, effect.tabular = or.row.by.col, effect.survival = effect.survival.coxph, conf.level = 0.95, label = FALSE) {
+cross_all <- function(x, y = NULL, funs = NULL, ..., margin = 0:2, total = FALSE, digits = 2, showNA = c("no", "ifany", "always"), method = c("pearson", "kendall", "spearman"), times = NULL, followup = FALSE, test = FALSE, test.tabular = test.tabular.auto, test.summarize = test.summarize.auto, test.survival = test.survival.logrank, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.summarize = effect.diff.mean.auto, effect.tabular = effect.or.row.by.col, effect.survival = effect.survival.coxph, conf.level = 0.95, label = FALSE) {
 
     if (!is.character(funs)) {
         nomf <- names(funs)
@@ -241,7 +241,7 @@ cross_all <- function(x, y = NULL, funs = c(mean, sd, quantile, n, na), ..., mar
 ##'
 ##' @author David Hajage
 ##' @keywords internal
-cross_list <- function(l, funs = c(mean, sd, quantile, n, na), ..., margin = 0:2, total = FALSE, digits = 2, showNA = c("no", "ifany", "always"), method = c("pearson", "kendall", "spearman"), times = NULL, followup = FALSE, test = FALSE, test.summarize = test.summarize.auto, test.survival = test.survival.logrank, test.tabular = test.tabular.auto, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.summarize = diff.mean.auto, effect.tabular = or.row.by.col, effect.survival = effect.survival.coxph, conf.level = 0.95, label = FALSE) {
+cross_list <- function(l, funs = NULL, ..., margin = 0:2, total = FALSE, digits = 2, showNA = c("no", "ifany", "always"), method = c("pearson", "kendall", "spearman"), times = NULL, followup = FALSE, test = FALSE, test.summarize = test.summarize.auto, test.survival = test.survival.logrank, test.tabular = test.tabular.auto, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.summarize = effect.diff.mean.auto, effect.tabular = effect.or.row.by.col, effect.survival = effect.survival.coxph, conf.level = 0.95, label = FALSE) {
 
   if (!is.character(funs)) {
     funs <- as.character(as.list(substitute(funs)))
@@ -345,14 +345,14 @@ regroup <- function(vars, numdata, catdata, survdata) {
 ##' \code{ci} (the matrix of confidence interval(s)), \code{effect.name} (the 
 ##' interpretiation(s) of the effect value(s)), \code{effect.type} (the description of 
 ##' the measure used) and \code{conf.level} (the confidence interval level). See 
-##' \code{diff.mean.auto}, \code{diff.mean.student} or \code{diff.mean.boot} for some examples of such
+##' \code{effect.diff.mean.auto}, \code{effect.diff.mean.student} or \code{diff.mean.boot} for some examples of such
 ##' functions. Users can provide their own function.
 ##' @param effect.tabular a function of three arguments (two categorical variables and conf.level) used to measure the associations between two factors.
 ##' Returns a list of five components : \code{effect} (the effect value(s)),
 ##' \code{ci} (the matrix of confidence interval(s)), \code{effect.name} (the 
 ##' interpretiation(s) of the effect value(s)), \code{effect.type} (the description of 
 ##' the measure used) and \code{conf.level} (the confidence interval level). See 
-##' \code{or.row.by.col}, \code{rr.row.by.col}, \code{rd.row.by.col}, \code{or.col.by.row}, \code{rr.col.by.row}, or \code{rd.col.by.row} for some examples of such functions. Users can provide their own function.
+##' \code{effect.or.row.by.col}, \code{effect.rr.row.by.col}, \code{effect.rd.row.by.col}, \code{effect.or.col.by.row}, \code{effect.rr.col.by.row}, or \code{effect.rd.col.by.row} for some examples of such functions. Users can provide their own function.
 ##' @param effect.survival a function of two argument (a formula and conf.level), used
 ##' to measure the association between a consored and a factor. Returns the same components as
 ##' created by \code{effect.summarize}. See
@@ -415,7 +415,7 @@ regroup <- function(vars, numdata, catdata, survdata) {
 ##' @export
 ##' @importFrom plyr is.formula
 ##' @importFrom plyr llply
-cross <- function(formula = cbind(...) ~ ., data = NULL, funs = c(" " = mysummary), ..., margin = 0:2, total = FALSE, digits = 2, showNA = c("no", "ifany", "always"), method = c("pearson", "kendall", "spearman"), times = NULL, followup = FALSE, test = FALSE, test.summarize = test.summarize.auto, test.survival = test.survival.logrank, test.tabular = test.tabular.auto, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.summarize = diff.mean.auto, effect.tabular = or.row.by.col, effect.survival = effect.survival.coxph, conf.level = 0.95, label = FALSE, regroup = FALSE) {
+cross <- function(formula = cbind(...) ~ ., data = NULL, funs = c(" " = mysummary), ..., margin = 0:2, total = FALSE, digits = 2, showNA = c("no", "ifany", "always"), method = c("pearson", "kendall", "spearman"), times = NULL, followup = FALSE, test = FALSE, test.summarize = test.summarize.auto, test.survival = test.survival.logrank, test.tabular = test.tabular.auto, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.summarize = effect.diff.mean.auto, effect.tabular = effect.or.row.by.col, effect.survival = effect.survival.coxph, conf.level = 0.95, label = FALSE, regroup = FALSE) {
 
   if (is.formula(formula))
     formula <- paste(deparse(formula, 500), collapse = "")

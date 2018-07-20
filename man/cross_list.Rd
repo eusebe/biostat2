@@ -4,15 +4,16 @@
 \alias{cross_list}
 \title{Cross variables in a list}
 \usage{
-cross_list(l, funs = c(mean, sd, quantile, n, na), ..., margin = 0:2,
-  total = FALSE, digits = 2, showNA = c("no", "ifany", "always"),
-  method = c("pearson", "kendall", "spearman"), times = NULL,
-  followup = FALSE, test = FALSE, test.summarize = test.summarize.auto,
+cross_list(l, funs = NULL, ..., margin = 0:2, total = FALSE, digits = 2,
+  showNA = c("no", "ifany", "always"), method = c("pearson", "kendall",
+  "spearman"), times = NULL, followup = FALSE, test = FALSE,
+  test.summarize = test.summarize.auto,
   test.survival = test.survival.logrank, test.tabular = test.tabular.auto,
   show.test = display.test, plim = 4, show.method = TRUE,
-  effect = FALSE, effect.summarize = diff.mean.auto,
-  effect.tabular = or.row.by.col, effect.survival = effect.survival.coxph,
-  conf.level = 0.95, label = FALSE)
+  effect = FALSE, effect.summarize = effect.diff.mean.auto,
+  effect.tabular = effect.or.row.by.col,
+  effect.survival = effect.survival.coxph, conf.level = 0.95,
+  label = FALSE)
 }
 \arguments{
 \item{l}{l}

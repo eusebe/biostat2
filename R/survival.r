@@ -176,6 +176,7 @@ survival.data.frame <- function(df, times = NULL, digits = 2, followup = FALSE, 
 ##' @param label label
 ##'
 ##' @author David Hajage
+##' @importFrom stats na.omit
 survival.data.frame.by <- function(df, by, times = NULL, followup = FALSE, total = FALSE, digits = 2, test = FALSE, test.survival = test.survival.logrank, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.survival = effect.survival.coxph, show.effect = display.effect, conf.level = 0.95, label = FALSE) {
 
     noms.df <- names(df)

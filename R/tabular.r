@@ -18,7 +18,7 @@
 ##'
 ##' @author David Hajage
 ##' @keywords internal
-tabular <- function(x, y, showNA = c("no", "ifany", "always"), margin = 0:2, total = FALSE, digits = 2, test = FALSE, test.tabular = test.tabular.auto, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.tabular = or.row.by.col, conf.level = 0.95, show.effect = display.effect) {
+tabular <- function(x, y, showNA = c("no", "ifany", "always"), margin = 0:2, total = FALSE, digits = 2, test = FALSE, test.tabular = test.tabular.auto, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.tabular = effect.or.row.by.col, conf.level = 0.95, show.effect = display.effect) {
 
     nn <- table(x, y)
     n <- table(x, y, useNA = showNA)
@@ -163,7 +163,7 @@ tabular <- function(x, y, showNA = c("no", "ifany", "always"), margin = 0:2, tot
 ##' @author David Hajage
 ##' @keywords internal
 ##' @importFrom plyr mapvalues
-tabular.data.frame <- function(dfx, dfy, margin = 0:2, showNA = c("no", "ifany", "always"), total = FALSE, digits = 2, test = FALSE, test.tabular = test.tabular.auto, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.tabular = or.row.by.col, conf.level = 0.95, show.effect = display.effect, label = FALSE) {
+tabular.data.frame <- function(dfx, dfy, margin = 0:2, showNA = c("no", "ifany", "always"), total = FALSE, digits = 2, test = FALSE, test.tabular = test.tabular.auto, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.tabular = effect.or.row.by.col, conf.level = 0.95, show.effect = display.effect, label = FALSE) {
 
     noms.dfx <- names(dfx)
     noms.dfy <- names(dfy)

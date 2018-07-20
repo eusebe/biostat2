@@ -192,6 +192,7 @@ FlexCrossTable <- function(crosstable, compact = FALSE, id = ".id", variable = "
 ##' @param id name of the 'id' column
 ##' @param variable name of the 'variable' column
 ##' @param value name of the 'value' column
+##' @param effect name of the 'effect' column
 ##' @param p name of the 'p' column
 ##' @return
 ##'   A \code{docx} object
@@ -209,222 +210,262 @@ FlexCrossTable <- function(crosstable, compact = FALSE, id = ".id", variable = "
 ##' @keywords univar
 ##' @export
 ##' @import ReporteRs
-addCrossTable <- function(doc, crosstable, compact = FALSE, id = ".id", variable = "variable", value = "value", p = "p") {
+addCrossTable <- function(doc, crosstable, compact = FALSE, id = ".id", variable = "variable", value = "value", effect = "effect", p = "p") {
     if (!inherits(crosstable, "FlexTable")) {
-        ft <- FlexCrossTable(crosstable, compact, id, variable, value, p)
+        ft <- FlexCrossTable(crosstable, compact, id, variable, value, effect, p)
     } else {
         ft <- crosstable
     }
     doc <- addFlexTable(doc, ft)
     return(doc)
 }
-# 
-# ##' add_header_list
+
+##' add_header_list
+##'
+##' @param x x
+##' @param top top
+##' @param args args
+##' @author David Hajage
+##' @keywords internal
+add_header_list <- function(x, top = TRUE, args) {
+    args_ <- lapply(x$col_keys, function(x) "")
+    names(args_) <- x$col_keys
+    args_[names(args)] <- lapply(args, format)
+    
+    header_data <- data.frame(as.list(args_), stringsAsFactors = FALSE, check.names = FALSE)
+    header_ <- flextable:::add_rows.complex_tabpart(x$header, header_data, first = TRUE)
+    header_ <- flextable:::span_rows(header_, rows = seq_len(nrow(header_data)))
+    x$header <- flextable:::span_columns(header_, x$col_keys)
+    x
+}
+
+##' merge_at_custom
+##'
+##' @param ft ft
+##' @param j j
+##' @param runs runs
+##' @author David Hajage
+##' @keywords internal
+merge_at_custom <- function(ft, j, runs) {
+    for (i in 1:length(runs)) {
+        ft <- merge_at(ft, i = runs[[i]], j = j)
+    }
+    ft
+}
+
+# ##' set_header_labels_list
 # ##'
 # ##' @param x x
-# ##' @param top top
 # ##' @param args args
 # ##' @author David Hajage
 # ##' @keywords internal
-# ##' @importFrom flextable flextable
-# ##' @importFrom purrr map
-# add_header_list <- function(x, top = TRUE, args) {
-#     args_ <- map(x$col_keys, function(x) "")
-#     names(args_) <- x$col_keys
-#     args_[names(args)] <- map(args, format)
-#     header_data <- as.data.frame(args_, stringsAsFactors = FALSE, check.names = FALSE)
-#     header_ <- flextable:::add_rows.complex_tabpart(x$header, header_data, first = TRUE)
-#     header_ <- flextable:::span_rows(header_, rows = seq_len(nrow(header_data)))
-#     x$header <- flextable:::span_columns(header_, x$col_keys)
-#     x
-# }
-# 
-# merge_at_custom <- function(ft, j, runs) {
-#     for (i in 1:length(runs)) {
-#         ft <- merge_at(ft, i = runs[[i]], j = j)
-#     }
-#     ft
-# }
-# 
 # set_header_labels_list <- function (x, args) {
 #     # args <- list(...)
-#     if (nrow(x$header$dataset) < 1) 
+#     if (nrow(x$header$dataset) < 1)
 #         stop("there is no header row to be replaced")
 #     header_ <- x$header$dataset
 #     values <- as.list(tail(x$header$dataset, n = 1))
 #     args <- args[is.element(names(args), x$col_keys)]
 #     values[names(args)] <- args
-#     x$header$dataset <- rbind(header_[-nrow(header_), ], as.data.frame(values, 
-#                                                                        stringsAsFactors = FALSE, check.names = FALSE))
+#     x$header$dataset <- rbind(header_[-nrow(header_), ], as.data.frame(values, stringsAsFactors = FALSE, check.names = FALSE))
 #     x
 # }
-# 
-# ## Equivalent functions, but for flextable package
-# ##' Create a flextable object from a table made by the cross function
-# ##'
-# ##' @name flexcrosstable-flextable
-# ##' @param crosstable the result of \code{cross} function
-# ##' @param compact compact the table?
-# ##' @return
-# ##'   A \code{flextable} object (see \code{flextable} package)
-# ##' @author David Hajage
-# ##' @examples
-# ##' \dontrun{
-# ##' library(biostat2)
-# ##' library(flextable)
-# ##' mytable <- cross(cbind(...) ~ tobgp, esoph, test = TRUE)
-# ##' flexcrosstable(mytable)
-# ##' flexcrosstable(mytable, TRUE)
-# ##' }
-# ##' @keywords univar
-# ##' @export
-# ##' @importFrom flextable flextable
-# flexcrosstable <- function(crosstable, compact = FALSE, id = ".id", variable = "variable", value = "value", p = "p") {
-#     crosstable$`.id` <- factor(crosstable$`.id`, unique(crosstable$`.id`), unique(crosstable$`.id`))
-# 
-#     
-#     if (!compact) {
-# 
-#         nm <- names(crosstable)
-#         nm[nm == ".id"] <- id
-#         nm[nm == "variable"] <- variable
-#         nm[nm == "value"] <- value
-#         nm[nm == "p"] <- p
-#         
-#         names(crosstable) <- make.names(names(crosstable), unique = TRUE)
-#         
-#         noms <- nm
-#         names(noms) <- names(crosstable)
-#         
-#         ft <- theme_vanilla(flextable(crosstable[, -1]))
-#         length.cum <- cumsum(rle(as.character(crosstable$`.id`))$lengths)
-#         runs <- mapply(function(x, y) {x:y}, c(1, length.cum[-length(length.cum)]+1), length.cum, SIMPLIFY = FALSE)
-#         
-#         ft <- merge_at_custom(ft, 1, runs)
-#         
-#         if ("p" %in% names(crosstable)) {
-#             pi <- grep(p, nm)-1
-#             for (i in pi) {
-#                 ft <- merge_at_custom(ft, i, runs)
-#             }
-#         }
-#         ft <- italic(ft, j = 1)
-#         ft <- set_header_labels_list(ft, noms)
-# 
-#         if (length(attr(crosstable, "noms.col")) > 0) {
-#             l <- NULL
-#             for (i in 1:length(attr(crosstable, "labs.col"))) {
-#                 l <- c(l, c("", rep(attr(crosstable, "labs.col")[i], attr(crosstable, "n.col")[i])))
-#             }
-# 
-#             args <- lapply(dlply(data.frame(var = names(crosstable), label = c("", "", l), stringsAsFactors = FALSE), .(var), function(x) x[2]), function(x) x[1, 1])
-#             ft <- add_header_list(ft, args = args[names(args) != ".id"])
-#         }
-#         ft <- align(ft, align = "center", part = "header")
-#     } else {
-#         crosstable2 <- as.data.frame(compact(crosstable), check.names = FALSE)
-#         
-#         nm <- names(crosstable2)
-#         nm[nm == ".id"] <- id
-#         nm[nm == "variable"] <- variable
-#         nm[nm == "value"] <- value
-#         nm[nm == "p"] <- p
-#         
-#         names(crosstable) <- make.names(names(crosstable), unique = TRUE)
-#         names(crosstable2) <- make.names(names(crosstable2), unique = TRUE)
-#         
-#         noms <- nm
-#         names(noms) <- names(crosstable2)
-# 
-#         ft <- theme_vanilla(flextable(crosstable2))
-#         ft <- border(ft, border = fp_border(width = 0))
-# 
-#         if ("p" %in% names(crosstable)) {
-#             bord <- cumsum(table(crosstable$.id)+2)
-#             bord2 <- bord - (table(crosstable$.id)+1)
-#             ft <- border(x = ft, i = bord, border.bottom = fp_border(width = 1))
-#             ft <- border(x = ft, i = bord, border.top = fp_border(width = 1, style = "dashed"))
-#             ft <- style(x = ft, i = bord, pr_p = fp_par(text.align = "left"))
-#             ft <- style(x = ft, i = bord2, pr_t = fp_text(italic = TRUE), pr_p = fp_par(text.align = "left"))
-# 
-#             for (i in bord) {
-#                 ft <- merge_h(ft, i = i)
-#             }
-#             for (i in bord2) {
-#                 ft <- merge_h(ft, i = i)
-#             }
-#         } else {
-#             bord <- cumsum(table(crosstable$.id)+1)
-#             bord2 <- bord - (table(crosstable$.id))
-#             ft <- border(x = ft, i = bord, border.bottom = fp_border(width = 1))
-#             ft <- style(x = ft, i = bord2, pr_t = fp_text(italic = TRUE), pr_p = fp_par(text.align = "left"))
-#             for (i in bord2) {
-#                 ft <- merge_h(ft, i = i)
-#             }
-#         }
-# 
-#         ft <- set_header_labels_list(ft, noms[!(noms %in% c(".id", "label", "p"))])
-#         if (length(attr(crosstable, "noms.col")) > 0) {
-#             l <- NULL
-#             for (i in 1:length(attr(crosstable, "labs.col"))) {
-#                 l <- c(l, c("", rep(attr(crosstable, "labs.col")[i], attr(crosstable, "n.col")[i]-("p" %in% names(crosstable)))))
-#             }
-# 
-#             args <- lapply(dlply(data.frame(var = names(crosstable2), label = c(l), stringsAsFactors = FALSE), .(var), function(x) x[2]), function(x) x[1, 1])
-#             ft <- add_header_list(ft, args = args[!(names(args) %in% c(".id", "label", "p"))])
-#         }
-#         ft <- align(ft, align = "center", part = "header")
-#     }
-# 
-#     # ft <- autofit(ft, 0, 0)
-#     # ft <- width(ft, width = 6.3*dim(ft)$widths/sum(dim(ft)$widths))
-# 
-#     return(ft)
-# }
-# 
-# ##' add a table made by the cross function into a ReporteRs document
-# ##'
-# ##' @param doc a \code{docx} object created by \code{read_docx} function (package \code{flextable})
-# ##' @param crosstable the result of \code{cross} function
-# ##' @param compact compact the table?
-# ##' @param width width of the table (if \code{NULL}, width of the current document is used)
-# ##' @param pos where to add the flextable relative to the cursor, one of "after", "before", "on" (end of line) (see \code{?body_add_flextable}).
-# ##' @return
-# ##'   A \code{docx} object
-# ##' @author David Hajage
-# ##' @examples
-# ##' \dontrun{
-# ##' library(biostat2)
-# ##' library(officer)
-# ##' library(flextable)
-# ##' mytable <- cross(cbind(...) ~ tobgp, esoph, test = TRUE)
-# ##' doc <- read_docx()
-# ##' doc <- body_add_crosstable(doc, mytable)
-# ##' doc <- body_add_break(doc)
-# ##' doc <- body_add_crosstable(doc, mytable, TRUE)
-# ##' }
-# ##' @keywords univar
-# ##' @export
-# ##' @importFrom flextable flextable
-# ##' @importFrom officer autofit
-# ##' @importFrom officer width
-# ##' @importFrom officer docx_dim
-# body_add_crosstable <- function(doc, value, compact = FALSE, w = NULL, pos = "after") {
-#     if (!inherits(value, "flextable")) {
-#         ft <- flexcrosstable(value, compact)
-#     } else {
-#         ft <- value
-#     }
-# 
-#     if (is.null(w)) {
-#         tmp <- docx_dim(doc)
-#         w <- tmp$page["width"] - sum(tmp$margins[c("left", "right")])
-#     }
-# 
-#     # ft <- autofit(ft, 0, 0)
-#     # ft <- width(ft, width = w)
-#     ft <- width(ft, width = w*dim(ft)$widths/sum(dim(ft)$widths))
-# 
-#     doc <- body_add_flextable(doc, value = ft, pos = pos)
-#     return(doc)
-# }
+
+## Equivalent functions, but for flextable package
+##' Create a flextable object from a table made by the cross function
+##'
+##' @name flexcrosstable-flextable
+##' @param crosstable the result of \code{cross} function
+##' @param compact compact the table?
+##' @param id name of the 'id' column
+##' @param variable name of the 'variable' column
+##' @param value name of the 'value' column
+##' @param effect name of the 'effect' column
+##' @param p name of the 'p' column
+##' @return
+##'   A \code{flextable} object (see \code{flextable} package)
+##' @author David Hajage
+##' @examples
+##' \dontrun{
+##' library(biostat2)
+##' library(flextable)
+##' mytable <- cross(cbind(...) ~ tobgp, esoph, test = TRUE)
+##' flexcrosstable(mytable)
+##' flexcrosstable(mytable, TRUE)
+##' }
+##' @keywords univar
+##' @export
+##' @import flextable
+##' @import officer
+flexcrosstable <- function(crosstable, compact = FALSE, id = ".id", variable = "variable", value = "value", effect = "effect", p = "p") {
+    crosstable$`.id` <- factor(crosstable$`.id`, unique(crosstable$`.id`), unique(crosstable$`.id`))
+
+    if (!compact) {
+
+        nm <- names(crosstable)
+        nm[nm == ".id"] <- id
+        nm[nm == "variable"] <- variable
+        nm[nm == "value"] <- value
+        nm[nm == "effect"] <- effect
+        nm[nm == "p"] <- p
+
+        names(crosstable) <- make.names(names(crosstable), unique = TRUE)
+
+        noms <- nm
+        names(noms) <- names(crosstable)
+
+        ft <- theme_vanilla(flextable(crosstable[, -1]))
+        length.cum <- cumsum(rle(as.character(crosstable$`.id`))$lengths)
+        runs <- mapply(function(x, y) {x:y}, c(1, length.cum[-length(length.cum)]+1), length.cum, SIMPLIFY = FALSE)
+
+        ft <- merge_at_custom(ft, 1, runs)
+
+        if ("p" %in% names(crosstable)) {
+            pi <- grep("p", nm)-1
+            for (i in pi) {
+                ft <- merge_at_custom(ft, i, runs)
+            }
+        }
+        if ("effect" %in% names(crosstable)) {
+            ei <- grep("effect", nm)-1
+            for (i in ei) {
+                ft <- merge_at_custom(ft, i, runs)
+            }
+        }
+        ft <- italic(ft, j = 1)
+        # ft <- set_header_labels_list(ft, noms)
+        ft <- do.call("set_header_labels", c(list(ft), as.list(noms)))
+        
+        if (length(attr(crosstable, "noms.col")) > 0) {
+            l <- NULL
+            for (i in 1:length(attr(crosstable, "labs.col"))) {
+                l <- c(l, c("", rep(attr(crosstable, "labs.col")[i], attr(crosstable, "n.col")[i])))
+            }
+
+            args <- lapply(dlply(data.frame(vars = names(crosstable), label = c("", "", l), stringsAsFactors = FALSE), "vars", function(x) x[2]), function(x) x[1, 1])
+            ft <- add_header_list(ft, args = args[names(args) != ".id"])
+        }
+        ft <- align(ft, align = "center", part = "header")
+        ft <- style(x = ft, pr_p = fp_par(text.align = "left"))
+    } else {
+        crosstable2 <- as.data.frame(compact(crosstable), check.names = FALSE)
+
+        nm <- names(crosstable2)
+        nm[nm == ".id"] <- id
+        nm[nm == "variable"] <- variable
+        nm[nm == "value"] <- value
+        nm[nm == "effect"] <- effect
+        nm[nm == "p"] <- p
+        
+        names(crosstable) <- make.names(names(crosstable), unique = TRUE)
+        names(crosstable2) <- make.names(names(crosstable2), unique = TRUE)
+
+        noms <- nm
+        names(noms) <- names(crosstable2)
+
+        ft <- theme_vanilla(flextable(crosstable2))
+        ft <- border(ft, border = fp_border(width = 0))
+        ft <- style(x = ft, pr_p = fp_par(text.align = "left"))
+        nb <- sum(unique(names(crosstable) == "p")) + sum(unique(names(crosstable)) == "effect")
+        
+        if ("p" %in% names(crosstable) | "effect" %in% names(crosstable)) {
+            if ("effect" %in% names(crosstable)) {
+                bord <- grep("    Effect", crosstable2[, "variable"])
+            } else {
+                bord <- grep("    Test", crosstable2[, "variable"])
+            }
+            bord2 <- cumsum(table(factor(crosstable$.id, unique(crosstable$.id)))+nb+1) - (table(factor(crosstable$.id, unique(crosstable$.id)))+nb)
+            
+            bord3 <- grep("    Effect|    Test", crosstable2[, "variable"])
+            
+            ft <- border(x = ft, i = bord, border.bottom = fp_border(width = 1))
+            ft <- border(x = ft, i = bord-(nb-1), border.top = fp_border(width = 1, style = "dashed"))
+            ft <- style(x = ft, i = bord2, pr_t = fp_text(italic = TRUE), pr_p = fp_par(text.align = "left"))
+            
+            for (i in bord3) {
+                ft <- merge_h(ft, i = i)
+            }
+            for (i in bord2) {
+                ft <- merge_h(ft, i = i)
+            }
+        } else {
+            bord <- cumsum(table(factor(crosstable$.id, unique(crosstable$.id)))+1)
+            bord2 <- bord - (table(factor(crosstable$.id, unique(crosstable$.id))))
+            ft <- border(x = ft, i = bord, border.bottom = fp_border(width = 1))
+            ft <- style(x = ft, i = bord2, pr_t = fp_text(italic = TRUE))
+            for (i in bord2) {
+                ft <- merge_h(ft, i = i)
+            }
+        }
+        
+        # ft <- set_header_labels_list(ft, noms[!(noms %in% c(".id", "label", "effect", "p"))])
+        ft <- do.call("set_header_labels", c(list(ft), as.list(noms[!(noms %in% c(".id", "label", "effect", "p"))])))
+        
+        
+        if (length(attr(crosstable, "noms.col")) > 0) {
+            l <- NULL
+            for (i in 1:length(attr(crosstable, "labs.col"))) {
+                l <- c(l, c("", rep(attr(crosstable, "labs.col")[i], attr(crosstable, "n.col")[i]-(nb))))
+            }
+
+            args <- lapply(dlply(data.frame(vars = names(crosstable2), label = c(l), stringsAsFactors = FALSE), "vars", function(x) x[2]), function(x) x[1, 1])
+            ft <- add_header_list(ft, args = args[!(names(args) %in% c(".id", "label", "effect", "p"))])
+        }
+        ft <- align(ft, align = "center", part = "header")
+    }
+
+    # ft <- autofit(ft, 0, 0)
+    # ft <- width(ft, width = 6.3*dim(ft)$widths/sum(dim(ft)$widths))
+
+    return(ft)
+}
+
+##' add a table made by the cross function into a officer document
+##'
+##' @param doc a \code{docx} object created by \code{read_docx} function (package \code{flextable})
+##' @param crosstable the result of \code{cross} function
+##' @param compact compact the table?
+##' @param id name of the 'id' column
+##' @param variable name of the 'variable' column
+##' @param value name of the 'value' column
+##' @param effect name of the 'effect' column
+##' @param p name of the 'p' column
+##' @param w width of the table (if \code{NULL}, width of the current document is used)
+##' @param pos where to add the flextable relative to the cursor, one of "after", "before", "on" (end of line) (see \code{?body_add_flextable}).
+##' @return
+##'   A \code{docx} object
+##' @author David Hajage
+##' @examples
+##' \dontrun{
+##' library(biostat2)
+##' library(officer)
+##' library(flextable)
+##' mytable <- cross(cbind(...) ~ tobgp, esoph, test = TRUE)
+##' doc <- read_docx()
+##' doc <- body_add_crosstable(doc, mytable)
+##' doc <- body_add_break(doc)
+##' doc <- body_add_crosstable(doc, mytable, TRUE)
+##' }
+##' @keywords univar
+##' @export
+##' @importFrom flextable flextable
+##' @import officer
+body_add_crosstable <- function(doc, crosstable, compact = FALSE, id = ".id", variable = "variable", value = "value", effect = "effect", p = "p", w = NULL, pos = "after") {
+    if (!inherits(value, "flextable")) {
+        ft <- flexcrosstable(crosstable, compact, id = id, variable = variable, value = value, effect = effect, p = p)
+    } else {
+        ft <- value
+    }
+
+    if (is.null(w)) {
+        tmp <- docx_dim(doc)
+        w <- tmp$page["width"] - sum(tmp$margins[c("left", "right")])
+    }
+
+    # ft <- autofit(ft, 0, 0)
+    # ft <- width(ft, width = w)
+    ft <- width(ft, width = w*dim(ft)$widths/sum(dim(ft)$widths))
+
+    doc <- body_add_flextable(doc, value = ft, pos = pos)
+    return(doc)
+}

@@ -46,6 +46,7 @@ display.test <- function(test, digits = 4, method = TRUE) {
 ##' @author David Hajage
 ##' @return a list with two componments: p.value and method
 ##' @export
+##' @importFrom stats chisq.test fisher.test
 test.tabular.auto <- function(x, y) {
   tab <- table(x, y)
   exp <- rowSums(tab)%*%t(colSums(tab))/sum(tab)
@@ -88,11 +89,12 @@ test.tabular.fisher <- function(x, y) {
 ##' Compute a oneway.test (with equal or unequal variance) or a
 ##' kruskal.test as appropriate.
 ##'
-##' @param x vector
-##' @param g another vector
+##' @param x vector (the continuous variable)
+##' @param g another vector (the grouping variable)
 ##' @return a list with two componments: p.value and method
 ##' @author David Hajage
 ##' @export
+##' @importFrom stats kruskal.test oneway.test wilcox.test t.test
 test.summarize.auto.old <- function(x, g) {
   ng <- table(g)
 
@@ -274,6 +276,7 @@ test.summarize.oneway.unequalvar <- function(x, g) {
 ##' @author David Hajage
 ##' @export
 ##' @import survival
+##' @importFrom stats pchisq
 test.survival.logrank <- function(formula) {
   survdiff.obj <- survdiff(formula)
   p <- 1-pchisq(survdiff.obj$chisq, length(survdiff.obj$n)-1)

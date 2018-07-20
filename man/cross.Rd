@@ -11,9 +11,10 @@ cross(formula = cbind(...) ~ ., data = NULL, funs = c(` ` = mysummary),
   test.summarize = test.summarize.auto,
   test.survival = test.survival.logrank, test.tabular = test.tabular.auto,
   show.test = display.test, plim = 4, show.method = TRUE,
-  effect = FALSE, effect.summarize = diff.mean.auto,
-  effect.tabular = or.row.by.col, effect.survival = effect.survival.coxph,
-  conf.level = 0.95, label = FALSE, regroup = FALSE)
+  effect = FALSE, effect.summarize = effect.diff.mean.auto,
+  effect.tabular = effect.or.row.by.col,
+  effect.survival = effect.survival.coxph, conf.level = 0.95,
+  label = FALSE, regroup = FALSE)
 }
 \arguments{
 \item{formula}{a formula (see Details).}
@@ -88,7 +89,7 @@ variable. Returns a list of five components : \code{effect} (the effect value(s)
 \code{ci} (the matrix of confidence interval(s)), \code{effect.name} (the 
 interpretiation(s) of the effect value(s)), \code{effect.type} (the description of 
 the measure used) and \code{conf.level} (the confidence interval level). See 
-\code{diff.mean.auto}, \code{diff.mean.student} or \code{diff.mean.boot} for some examples of such
+\code{effect.diff.mean.auto}, \code{effect.diff.mean.student} or \code{diff.mean.boot} for some examples of such
 functions. Users can provide their own function.}
 
 \item{effect.tabular}{a function of three arguments (two categorical variables and conf.level) used to measure the associations between two factors.
@@ -96,7 +97,7 @@ Returns a list of five components : \code{effect} (the effect value(s)),
 \code{ci} (the matrix of confidence interval(s)), \code{effect.name} (the 
 interpretiation(s) of the effect value(s)), \code{effect.type} (the description of 
 the measure used) and \code{conf.level} (the confidence interval level). See 
-\code{or.row.by.col}, \code{rr.row.by.col}, \code{rd.row.by.col}, \code{or.col.by.row}, \code{rr.col.by.row}, or \code{rd.col.by.row} for some examples of such functions. Users can provide their own function.}
+\code{effect.or.row.by.col}, \code{effect.rr.row.by.col}, \code{effect.rd.row.by.col}, \code{effect.or.col.by.row}, \code{effect.rr.col.by.row}, or \code{effect.rd.col.by.row} for some examples of such functions. Users can provide their own function.}
 
 \item{effect.survival}{a function of two argument (a formula and conf.level), used
 to measure the association between a consored and a factor. Returns the same components as

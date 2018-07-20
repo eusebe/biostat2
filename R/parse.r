@@ -12,6 +12,7 @@ remove_blank <- function(formula) {
 ##' @param formula formula (character)
 ##' @author David Hajage
 ##' @keywords internal
+##' @importFrom stats as.formula terms
 left_right <- function(formula) {
   if (is.character(formula)) {
     formula <- as.formula(formula)
@@ -98,6 +99,7 @@ elements <- function(x) {
 ##' @param data data
 ##' @author David Hajage
 ##' @keywords internal
+##' @importFrom stats model.frame
 parse_data <- function(formula, data) {
   vars <- unlist(left_right(formula))
   vars <- vars[vars != "."]

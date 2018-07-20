@@ -29,7 +29,7 @@ display.effect <- function(effect, digits = 4) {
 # rd.row.by.col <- function (x, y, conf.level = 0.95) {
 #     tab <- table(x, y)
 #     if (ncol(tab) <= 1 | ncol(tab) > 2) {
-#         ## Je ne sais pas quel effet calculer par défaut quand il existe plus de 2 catégories en colonne
+#         ## Je ne sais pas quel effet calculer par defaut quand il existe plus de 2 categories en colonne
 #         effect <- NULL
 #         ci <- NULL
 #         effect.name <- NULL
@@ -61,7 +61,7 @@ display.effect <- function(effect, digits = 4) {
 # rr.row.by.col <- function (x, y, conf.level = 0.95) {
 #     tab <- table(x, y)
 #     if (ncol(tab) <= 1 | ncol(tab) > 2) {
-#         ## Je ne sais pas quel effet calculer par défaut quand il existe plus de 2 catégories en colonne
+#         ## Je ne sais pas quel effet calculer par defaut quand il existe plus de 2 categories en colonne
 #         effect <- NULL
 #         ci <- NULL
 #         effect.name <- NULL
@@ -93,7 +93,7 @@ display.effect <- function(effect, digits = 4) {
 # or.row.by.col <- function (x, y, conf.level = 0.95) {
 #     tab <- table(x, y)
 #     if (ncol(tab) <= 1 | ncol(tab) > 2) {
-#         ## Je ne sais pas quel effet calculer par défaut quand il existe plus de 2 catégories en colonne
+#         ## Je ne sais pas quel effet calculer par defaut quand il existe plus de 2 categories en colonne
 #         effect <- NULL
 #         ci <- NULL
 #         effect.name <- NULL
@@ -118,7 +118,8 @@ display.effect <- function(effect, digits = 4) {
 #'
 #' @return a list with five componments
 #' @export
-or.row.by.col <- function (x, y, conf.level = 0.95) {
+#' @importFrom stats glm binomial confint
+effect.or.row.by.col <- function (x, y, conf.level = 0.95) {
     tab <- table(x, y)
     if (ncol(tab) <= 1 | nrow(tab) > 2) {
         ## Je ne sais pas quel effet calculer 
@@ -149,7 +150,7 @@ or.row.by.col <- function (x, y, conf.level = 0.95) {
 #'
 #' @return a list with five componments
 #' @export
-rr.row.by.col <- function (x, y, conf.level = 0.95) {
+effect.rr.row.by.col <- function (x, y, conf.level = 0.95) {
     tab <- table(x, y)
     if (ncol(tab) <= 1 | nrow(tab) > 2) {
         ## Je ne sais pas quel effet calculer 
@@ -180,7 +181,7 @@ rr.row.by.col <- function (x, y, conf.level = 0.95) {
 #'
 #' @return a list with five componments
 #' @export
-rd.row.by.col <- function (x, y, conf.level = 0.95) {
+effect.rd.row.by.col <- function (x, y, conf.level = 0.95) {
     tab <- table(x, y)
     if (ncol(tab) <= 1 | nrow(tab) > 2) {
         ## Je ne sais pas quel effet calculer 
@@ -191,7 +192,7 @@ rd.row.by.col <- function (x, y, conf.level = 0.95) {
         conf.level <- NULL
     } else {
         xnum <- ifelse(x == rownames(tab)[1], 1, 0)
-        mod <- glm(xnum ~ y, family = binomial(link = "identity"))
+        mod <- glm(xnum ~ y)
         effect <- 100*mod$coef[-1]
         ci <- 100*suppressMessages(confint(mod)[-1, ])
         if (is.null(nrow(ci))) {
@@ -211,7 +212,7 @@ rd.row.by.col <- function (x, y, conf.level = 0.95) {
 #'
 #' @return a list with five componments
 #' @export
-or.col.by.row <- function (x, y, conf.level = 0.95) {
+effect.or.col.by.row <- function (x, y, conf.level = 0.95) {
     tab <- table(y, x)
     if (ncol(tab) <= 1 | nrow(tab) > 2) {
         ## Je ne sais pas quel effet calculer 
@@ -242,7 +243,7 @@ or.col.by.row <- function (x, y, conf.level = 0.95) {
 #'
 #' @return a list with five componments
 #' @export
-rr.col.by.row <- function (x, y, conf.level = 0.95) {
+effect.rr.col.by.row <- function (x, y, conf.level = 0.95) {
     tab <- table(y, x)
     if (ncol(tab) <= 1 | nrow(tab) > 2) {
         ## Je ne sais pas quel effet calculer 
@@ -273,7 +274,7 @@ rr.col.by.row <- function (x, y, conf.level = 0.95) {
 #'
 #' @return a list with five componments
 #' @export
-rd.col.by.row <- function (x, y, conf.level = 0.95) {
+effect.rd.col.by.row <- function (x, y, conf.level = 0.95) {
     tab <- table(y, x)
     if (ncol(tab) <= 1 | nrow(tab) > 2) {
         ## Je ne sais pas quel effet calculer 
@@ -284,7 +285,7 @@ rd.col.by.row <- function (x, y, conf.level = 0.95) {
         conf.level <- NULL
     } else {
         ynum <- ifelse(y == rownames(tab)[1], 1, 0)
-        mod <- glm(ynum ~ x, family = binomial(link = "identity"))
+        mod <- glm(ynum ~ x)
         effect <- 100*mod$coef[-1]
         ci <- 100*suppressMessages(confint(mod)[-1, ])
         if (is.null(nrow(ci))) {
@@ -298,18 +299,19 @@ rd.col.by.row <- function (x, y, conf.level = 0.95) {
 
 #' Effect measure for association between one continuous and one categorical variable
 #'
-#' @param x vector
-#' @param y another vector
+#' @param x vector (the continuous variable)
+#' @param g another vector (the grouping variable)
 #' @param conf.level confidence interval level
 #' @param R number of bootstrap replication
 #'
 #' @return a list with five componments
 #' @importFrom nortest ad.test
+#' @importFrom stats bartlett.test shapiro.test qnorm
 #' @export
-diff.mean.auto <- function(x, g, conf.level = 0.95, R = 500) {
+effect.diff.mean.auto <- function(x, g, conf.level = 0.95, R = 500) {
     ng <- table(g)
     if (length(ng) <= 1 | length(ng) > 2) {
-        ## Je ne sais pas quel effet calculer par défaut quand il existe plus de 2 catégories en colonne
+        ## Je ne sais pas quel effet calculer par defaut quand il existe plus de 2 categories en colonne
         effect <- NULL
         ci <- NULL
         effect.name <- NULL
@@ -359,17 +361,17 @@ diff.mean.auto <- function(x, g, conf.level = 0.95, R = 500) {
 
 #' Effect measure for association between one continuous and one categorical variable
 #'
-#' @param x vector
-#' @param y another vector
+#' @param x vector (the continuous variable)
+#' @param g another vector (the grouping variable)
 #' @param conf.level confidence interval level
 #' @param R number of bootstrap replication
 #'
 #' @return a list with five componments
 #' @export
-diff.mean.boot <- function(x, g, conf.level = 0.95, R = 500) {
+effect.diff.mean.boot <- function(x, g, conf.level = 0.95, R = 500) {
     ng <- table(g)
     if (length(ng) <= 1 | length(ng) > 2) {
-        ## Je ne sais pas quel effet calculer par défaut quand il existe plus de 2 catégories en colonne
+        ## Je ne sais pas quel effet calculer par defaut quand il existe plus de 2 categories en colonne
         effect <- NULL
         ci <- NULL
         effect.name <- NULL
@@ -395,16 +397,16 @@ diff.mean.boot <- function(x, g, conf.level = 0.95, R = 500) {
 
 #' Effect measure for association between one continuous and one categorical variable
 #'
-#' @param x vector
-#' @param y another vector
+#' @param x vector (the continuous variable)
+#' @param g another vector (the grouping variable)
 #' @param conf.level confidence interval level
 #'
 #' @return a list with five componments
 #' @export
-diff.mean.student <- function(x, g, conf.level = 0.95) {
+effect.diff.mean.student <- function(x, g, conf.level = 0.95) {
     ng <- table(g)
     if (length(ng) <= 1 | length(ng) > 2) {
-        ## Je ne sais pas quel effet calculer par défaut quand il existe plus de 2 catégories en colonne
+        ## Je ne sais pas quel effet calculer par defaut quand il existe plus de 2 categories en colonne
         effect <- NULL
         ci <- NULL
         effect.name <- NULL
@@ -433,17 +435,18 @@ diff.mean.student <- function(x, g, conf.level = 0.95) {
 
 #' Effect measure for association between one continuous and one categorical variable
 #'
-#' @param x vector
-#' @param y another vector
+#' @param x vector (the continuous variable)
+#' @param g another vector (the grouping variable)
 #' @param conf.level confidence interval level
 #' @param R number of bootstrap replication
 #'
 #' @return a list with five componments
 #' @export
-diff.median <- function(x, g, conf.level = 0.95, R = 500) {
+#' @importFrom stats median
+effect.diff.median <- function(x, g, conf.level = 0.95, R = 500) {
     ng <- table(g)
     if (length(ng) <= 1 | length(ng) > 2) {
-        ## Je ne sais pas quel effet calculer par défaut quand il existe plus de 2 catégories en colonne
+        ## Je ne sais pas quel effet calculer par defaut quand il existe plus de 2 categories en colonne
         effect <- NULL
         ci <- NULL
         effect.type <- NULL
@@ -469,6 +472,7 @@ diff.median <- function(x, g, conf.level = 0.95, R = 500) {
 ##' Effect measure for association between one consored variable and one categorical variable
 ##'
 ##' @param formula a formula
+##' @param conf.level confidence interval level
 ##' @return a list with two componments: p.value and method
 ##' @author David Hajage
 ##' @export

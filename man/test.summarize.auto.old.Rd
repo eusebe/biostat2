@@ -7,9 +7,9 @@
 test.summarize.auto.old(x, g)
 }
 \arguments{
-\item{x}{vector}
+\item{x}{vector (the continuous variable)}
 
-\item{g}{another vector}
+\item{g}{another vector (the grouping variable)}
 }
 \value{
 a list with two componments: p.value and method

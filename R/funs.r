@@ -73,6 +73,7 @@ minmax <- function(x, na.rm = TRUE, dig = 2) {
 ##' @param na.rm \code{TRUE} as default
 ##' @param dig number of digits
 ##' @keywords internal
+##' @importFrom stats quantile
 mediqr <- function(x, na.rm = TRUE, dig = 2) {
     med <- round(median(x, na.rm = na.rm), dig)
     iqr <- round(quantile(x, probs = c(0.25, 0.75), na.rm = na.rm), dig)
@@ -85,6 +86,7 @@ mediqr <- function(x, na.rm = TRUE, dig = 2) {
 ##' @param na.rm \code{TRUE} as default
 ##' @param dig number of digits
 ##' @keywords internal
+##' @importFrom stats sd
 moystd <- function(x, na.rm = TRUE, dig = 2) {
     moy <- round(mean(x, na.rm = na.rm), dig)
     std <- round(sd(x, na.rm = na.rm), dig)

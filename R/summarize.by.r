@@ -18,7 +18,7 @@
 ##' @importFrom plyr ddply
 ##' @importFrom plyr .
 ##' @importFrom reshape2 dcast
-summarize.by <- function(x, by, funs = c(mean, sd, quantile, n, na), ..., showNA = c("no", "ifany", "always"), total = FALSE, digits = 2, test = FALSE, test.summarize = test.summarize.auto, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.summarize = diff.mean.auto, conf.level = 0.95, show.effect = display.effect) {
+summarize.by <- function(x, by, funs = c(mean, sd, quantile, n, na), ..., showNA = c("no", "ifany", "always"), total = FALSE, digits = 2, test = FALSE, test.summarize = test.summarize.auto, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.summarize = effect.diff.mean.auto, conf.level = 0.95, show.effect = display.effect) {
 
     showNA <- showNA[1]
 
@@ -90,8 +90,8 @@ summarize.by <- function(x, by, funs = c(mean, sd, quantile, n, na), ..., showNA
 ##' @author David Hajage
 ##' @keywords internal
 ##' @importFrom Hmisc label
-##' @importFrom plyr ldply mapvalues
-summarize.data.frame.by <- function(df, by, funs = c(mean, sd, quantile, n, na), ..., showNA = c("no", "ifany", "always"), total = FALSE, digits = 2, test = FALSE, test.summarize = test.summarize.auto, show.test = display.test, plim = 4, show.method = TRUE, label = FALSE, effect = FALSE, effect.summarize = diff.mean.auto, conf.level = 0.95, show.effect = display.effect) {
+##' @importFrom plyr ldply mapvalues laply
+summarize.data.frame.by <- function(df, by, funs = c(mean, sd, quantile, n, na), ..., showNA = c("no", "ifany", "always"), total = FALSE, digits = 2, test = FALSE, test.summarize = test.summarize.auto, show.test = display.test, plim = 4, show.method = TRUE, label = FALSE, effect = FALSE, effect.summarize = effect.diff.mean.auto, conf.level = 0.95, show.effect = display.effect) {
   if (!is.character(funs)) {
       nomf <- names(funs)
       funs <- as.character(as.list(substitute(funs)))

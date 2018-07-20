@@ -6,6 +6,7 @@
 ##' @param digits digits
 ##' @author David Hajage
 ##' @keywords internal
+##' @importFrom stats cor.test
 correlation <- function(x, y, method = c("pearson", "kendall", "spearman"), digits = 2) {
   results <- as.character(round(cor.test(x, y, method = method)$estimate, digits))
   ## class(results) <- c("correlation", "matrix")
