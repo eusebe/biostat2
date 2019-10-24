@@ -4,10 +4,11 @@
 \alias{cross_one}
 \title{Cross one x and one y}
 \usage{
-cross_one(x, y = NULL, funs = NULL, ..., margin = 0:2, total = FALSE,
-  digits = 2, showNA = c("no", "ifany", "always"), method = c("pearson",
-  "kendall", "spearman"), times = NULL, followup = FALSE, test = FALSE,
-  test.tabular = test.tabular.auto, test.summarize = test.summarize.auto,
+cross_one(x, y = NULL, funs = NULL, ..., margin = 0:2,
+  total = FALSE, digits = 2, showNA = c("no", "ifany", "always"),
+  method = c("pearson", "kendall", "spearman"), times = NULL,
+  followup = FALSE, test = FALSE, test.tabular = test.tabular.auto,
+  test.summarize = test.summarize.auto,
   test.survival = test.survival.logrank, show.test = display.test,
   plim = 4, show.method = TRUE, effect = FALSE,
   effect.summarize = effect.diff.mean.auto,

@@ -34,8 +34,6 @@ summarize <- function(x, funs = c(mean, sd, quantile, n, na), ..., digits = 2) {
 ##' @param label add labels
 ##' @author David Hajage
 ##' @keywords internal
-##' @importFrom Hmisc label
-##' @importFrom plyr ldply mapvalues
 summarize.data.frame <- function(df, funs = c(mean, sd, quantile, n, na), ..., digits = 2, label = FALSE) {
   if (!is.character(funs)) {
       nomf <- names(funs)
@@ -47,7 +45,7 @@ summarize.data.frame <- function(df, funs = c(mean, sd, quantile, n, na), ..., d
   noms.df <- names(df)
 
   if (label) {
-      labs.df <- sapply(df, label)
+      labs.df <- sapply(df, function(x) attr(x, "label"))
       labs.df[labs.df == ""] <- noms.df[labs.df == ""]
       # names(df) <- noms.df
   } else {
@@ -55,8 +53,16 @@ summarize.data.frame <- function(df, funs = c(mean, sd, quantile, n, na), ..., d
   }
 
   dfl <- as.list(df)
-  results <- ldply(dfl, summarize, funs = funs, ..., digits = digits)
-
+  # results <- ldply(dfl, summarize, funs = funs, ..., digits = digits)
+  # sans utiliser ldply
+  tmp <- lapply(dfl, summarize, funs = funs, ..., digits = digits)
+  idlab <- unlist(mapply(rep, names(tmp), each = sapply(tmp, function(x) nrow(x)), SIMPLIFY = FALSE))
+  results <- do.call("rbind", tmp)
+  results <- cbind(.id = idlab, results)
+  rownames(results) <- NULL
+  
+  do.call("rbind", tmp) ##  RAJOUTER LES NOMS DE VARIABLES DANS LA COLONNE .id
+  
   n.df <- rep(length(unique(results$variable)), length(dfl))
 
   results$label <- mapvalues(results$`.id`, from = noms.df, to = labs.df)

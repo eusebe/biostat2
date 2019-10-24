@@ -147,7 +147,6 @@ tabular <- function(x, y, showNA = c("no", "ifany", "always"), margin = 0:2, tot
 
 ##' Compute a contingency table (data.frame input)
 ##'
-##' @importFrom Hmisc label
 ##' @param dfx data.frame
 ##' @param dfy data.frame
 ##' @param margin margin
@@ -162,17 +161,16 @@ tabular <- function(x, y, showNA = c("no", "ifany", "always"), margin = 0:2, tot
 ##' @param label label
 ##' @author David Hajage
 ##' @keywords internal
-##' @importFrom plyr mapvalues
 tabular.data.frame <- function(dfx, dfy, margin = 0:2, showNA = c("no", "ifany", "always"), total = FALSE, digits = 2, test = FALSE, test.tabular = test.tabular.auto, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.tabular = effect.or.row.by.col, conf.level = 0.95, show.effect = display.effect, label = FALSE) {
 
     noms.dfx <- names(dfx)
     noms.dfy <- names(dfy)
 
     if (label) {
-        labs.dfx <- sapply(dfx, label)
+        labs.dfx <- sapply(dfx, function(x) get_label(x))
         labs.dfx[labs.dfx == ""] <- noms.dfx[labs.dfx == ""]
         # names(dfx) <- noms.dfx
-        labs.dfy <- sapply(dfy, label)
+        labs.dfy <- sapply(dfy, function(x) get_label(x))
         labs.dfy[labs.dfy == ""] <- noms.dfy[labs.dfy == ""]
         # names(dfy) <- noms.dfy
     } else {
@@ -181,8 +179,10 @@ tabular.data.frame <- function(dfx, dfy, margin = 0:2, showNA = c("no", "ifany",
     }
 
 
-    results <- llply(dfy, function(y) llply(dfx, function(x) tabular(x, y, margin = margin, showNA = showNA, total = total, digits = digits, test = test, test.tabular = test.tabular, show.test = show.test, plim = plim, show.method = show.method, effect = effect, effect.tabular = effect.tabular, conf.level = conf.level, show.effect = show.effect)))
-
+    # results <- llply(dfy, function(y) llply(dfx, function(x) tabular(x, y, margin = margin, showNA = showNA, total = total, digits = digits, test = test, test.tabular = test.tabular, show.test = show.test, plim = plim, show.method = show.method, effect = effect, effect.tabular = effect.tabular, conf.level = conf.level, show.effect = show.effect)))
+    # sans utiliser llply
+    results <- lapply(dfy, function(y) lapply(dfx, function(x) tabular(x, y, margin = margin, showNA = showNA, total = total, digits = digits, test = test, test.tabular = test.tabular, show.test = show.test, plim = plim, show.method = show.method, effect = effect, effect.tabular = effect.tabular, conf.level = conf.level, show.effect = show.effect)))
+    
     results <- lapply(results, function(x) {
         noms <- names(x)
         for (i in 1:length(x)) {
@@ -196,7 +196,9 @@ tabular.data.frame <- function(dfx, dfy, margin = 0:2, showNA = c("no", "ifany",
     results <- lapply(results, rbind.list)
 
     if (length(results) > 1) {
-        n.dfy <- laply(results, ncol) - 2
+        # n.dfy <- laply(results, ncol) - 2
+        # sans utiliser lapply
+        n.by <- sapply(results, ncol) - 2
         results <- cbind(results[[1]], cbind.list(lapply(results[-1], function(x) x[, -(1:2)])))
     } else {
         n.dfy <- ncol(results[[1]]) - 2

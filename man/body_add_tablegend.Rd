@@ -2,7 +2,7 @@
 % Please edit documentation in R/officer.r
 \name{body_add_tablegend}
 \alias{body_add_tablegend}
-\title{Add a new paragraph with a Tablegend style}
+\title{Add a new paragraph with a tablereference style}
 \usage{
 body_add_tablegend(x, value, style = "tablereference", pos = "after")
 }
@@ -19,13 +19,13 @@ body_add_tablegend(x, value, style = "tablereference", pos = "after")
 a new rdocx object
 }
 \description{
-Add a new paragraph with a Tablegend style
+Add a new paragraph with a tablereference style
 }
 \examples{
 \dontrun{
 library(biostat2)
 library(officer)
-doc <- body_add_plotlegend(doc, "Coucou")
+doc <- body_add_tablegend(doc, "Coucou")
 }
 }
 \author{

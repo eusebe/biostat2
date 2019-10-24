@@ -5,7 +5,8 @@
 \title{add a table made by the cross function into a ReporteRs document}
 \usage{
 addCrossTable(doc, crosstable, compact = FALSE, id = ".id",
-  variable = "variable", value = "value", effect = "effect", p = "p")
+  variable = "variable", value = "value", effect = "effect",
+  p = "p")
 }
 \arguments{
 \item{doc}{a \code{docx} object created by \code{docx} function (see \code{ReporteRs} package)}

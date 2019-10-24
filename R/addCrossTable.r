@@ -3,8 +3,6 @@
 ##' @param x x
 ##' @author David Hajage
 ##' @keywords internal
-##' @importFrom plyr alply
-##' @importFrom plyr dlply
 compact <- function(x) {
     ordre <- unique(x$.id)
     if ("p" %in% names(x) | "effect" %in% names(x)) {
@@ -15,7 +13,9 @@ compact <- function(x) {
             rajout <- c(rajout, "Effect")
         
         # attributes(attr(x, "n.col")) <- NULL
-        res <- do.call("rbind", dlply(x, ".id", function(y) {
+        # res <- do.call("rbind", dlply(x, ".id", function(y) {
+        # sans utiliser dlply
+        res <- do.call("rbind", by(x, x[, ".id"], function(y) {
             labs <- y$label
             y$label <- NULL
             idx.p <- grep("^p$", names(y))
@@ -58,7 +58,9 @@ compact <- function(x) {
         
     } else {
         x[, grep("variable", names(x))] <- paste.matrix("    ", x[, grep("variable", names(x))], sep = "")
-        res <- do.call("rbind", dlply(x, ".id", function(y) {
+        # res <- do.call("rbind", dlply(x, ".id", function(y) {
+        # sans utiliser dlply
+        res <- do.call("rbind", by(x, x[, ".id"], function(y) {
             tmp <- sapply(y[, -(1:2), FALSE], as.character)
             dim(tmp) <- dim(y[, -(1:2), FALSE])
             dimnames(tmp) <- dimnames(y[, -(1:2), FALSE])
@@ -102,9 +104,14 @@ compact <- function(x) {
 ##' }
 ##' @keywords univar
 ##' @export
-##' @import ReporteRs
 FlexCrossTable <- function(crosstable, compact = FALSE, id = ".id", variable = "variable", value = "value", effect = "effect", p = "p") {
 
+    if (!requireNamespace("ReporteRs", quietly = TRUE)) {
+        stop("Package \"ReporteRs\" needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+    require(ReporteRs)
+    
     header <- names(crosstable)[names(crosstable) != "label"]
     names(header) <- header
     header[header == ".id"] <- id
@@ -209,8 +216,14 @@ FlexCrossTable <- function(crosstable, compact = FALSE, id = ".id", variable = "
 ##' }
 ##' @keywords univar
 ##' @export
-##' @import ReporteRs
 addCrossTable <- function(doc, crosstable, compact = FALSE, id = ".id", variable = "variable", value = "value", effect = "effect", p = "p") {
+    
+    if (!requireNamespace("ReporteRs", quietly = TRUE)) {
+        stop("Package \"ReporteRs\" needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+    require(ReporteRs)
+    
     if (!inherits(crosstable, "FlexTable")) {
         ft <- FlexCrossTable(crosstable, compact, id, variable, value, effect, p)
     } else {
@@ -231,7 +244,7 @@ add_header_list <- function(x, top = TRUE, args) {
     args_ <- lapply(x$col_keys, function(x) "")
     names(args_) <- x$col_keys
     args_[names(args)] <- lapply(args, format)
-    
+
     header_data <- data.frame(as.list(args_), stringsAsFactors = FALSE, check.names = FALSE)
     header_ <- flextable:::add_rows.complex_tabpart(x$header, header_data, first = TRUE)
     header_ <- flextable:::span_rows(header_, rows = seq_len(nrow(header_data)))
@@ -321,20 +334,22 @@ flexcrosstable <- function(crosstable, compact = FALSE, id = ".id", variable = "
         ft <- merge_at_custom(ft, 1, runs)
 
         if ("p" %in% names(crosstable)) {
-            pi <- grep("p", nm)-1
+            pi <- grep("^p$", nm)-1
             for (i in pi) {
                 ft <- merge_at_custom(ft, i, runs)
             }
         }
         if ("effect" %in% names(crosstable)) {
-            ei <- grep("effect", nm)-1
+            ei <- grep("^effect$", nm)-1
             for (i in ei) {
                 ft <- merge_at_custom(ft, i, runs)
             }
         }
         ft <- italic(ft, j = 1)
         # ft <- set_header_labels_list(ft, noms)
-        ft <- do.call("set_header_labels", c(list(ft), as.list(noms)))
+        # ft <- do.call("set_header_labels", c(list(ft), as.list(noms[])))
+        ft <- do.call("set_header_labels", c(list(ft), as.list(noms[names(noms) %in% ft$col_keys])))
+        
         
         if (length(attr(crosstable, "noms.col")) > 0) {
             l <- NULL
@@ -342,7 +357,11 @@ flexcrosstable <- function(crosstable, compact = FALSE, id = ".id", variable = "
                 l <- c(l, c("", rep(attr(crosstable, "labs.col")[i], attr(crosstable, "n.col")[i])))
             }
 
-            args <- lapply(dlply(data.frame(vars = names(crosstable), label = c("", "", l), stringsAsFactors = FALSE), "vars", function(x) x[2]), function(x) x[1, 1])
+            # args <- lapply(dlply(data.frame(vars = names(crosstable), label = c("", "", l), stringsAsFactors = FALSE), "vars", function(x) x[2]), function(x) x[1, 1])
+            # sans utiliser dlply
+            toto <- data.frame(vars = names(crosstable), label = c("", "", l), stringsAsFactors = FALSE)      
+            args <- lapply(by(toto, toto[, "vars"], function(x) x[2], simplify = FALSE), function(x) x[1, 1])
+            
             ft <- add_header_list(ft, args = args[names(args) != ".id"])
         }
         ft <- align(ft, align = "center", part = "header")
@@ -408,7 +427,11 @@ flexcrosstable <- function(crosstable, compact = FALSE, id = ".id", variable = "
                 l <- c(l, c("", rep(attr(crosstable, "labs.col")[i], attr(crosstable, "n.col")[i]-(nb))))
             }
 
-            args <- lapply(dlply(data.frame(vars = names(crosstable2), label = c(l), stringsAsFactors = FALSE), "vars", function(x) x[2]), function(x) x[1, 1])
+            # args <- lapply(dlply(data.frame(vars = names(crosstable2), label = c(l), stringsAsFactors = FALSE), "vars", function(x) x[2]), function(x) x[1, 1])
+            # sans utiliser dlply
+            titi <- data.frame(vars = names(crosstable2), label = c(l), stringsAsFactors = FALSE)
+            args <- lapply(by(titi, titi[, "vars"], function(x) x[2], simplify = FALSE), function(x) x[1, 1])
+            
             ft <- add_header_list(ft, args = args[!(names(args) %in% c(".id", "label", "effect", "p"))])
         }
         ft <- align(ft, align = "center", part = "header")
@@ -417,6 +440,9 @@ flexcrosstable <- function(crosstable, compact = FALSE, id = ".id", variable = "
     # ft <- autofit(ft, 0, 0)
     # ft <- width(ft, width = 6.3*dim(ft)$widths/sum(dim(ft)$widths))
 
+    ft <- bg(ft, bg = "#365F91", part = "header")
+    ft <- color(ft, color = "#FFFFFF", part = "header")
+    ft <- height(ft, height = 0, part = "header")
     return(ft)
 }
 
@@ -432,6 +458,7 @@ flexcrosstable <- function(crosstable, compact = FALSE, id = ".id", variable = "
 ##' @param p name of the 'p' column
 ##' @param w width of the table (if \code{NULL}, width of the current document is used)
 ##' @param pos where to add the flextable relative to the cursor, one of "after", "before", "on" (end of line) (see \code{?body_add_flextable}).
+##' @param landscape is the table inserted in a landscape section? (default: FALSE)
 ##' @return
 ##'   A \code{docx} object
 ##' @author David Hajage
@@ -450,16 +477,19 @@ flexcrosstable <- function(crosstable, compact = FALSE, id = ".id", variable = "
 ##' @export
 ##' @importFrom flextable flextable
 ##' @import officer
-body_add_crosstable <- function(doc, crosstable, compact = FALSE, id = ".id", variable = "variable", value = "value", effect = "effect", p = "p", w = NULL, pos = "after") {
+body_add_crosstable <- function(doc, crosstable, compact = FALSE, id = ".id", variable = "variable", value = "value", effect = "effect", p = "p", w = NULL, pos = "after", landscape = FALSE) {
     if (!inherits(value, "flextable")) {
         ft <- flexcrosstable(crosstable, compact, id = id, variable = variable, value = value, effect = effect, p = p)
     } else {
         ft <- value
     }
 
-    if (is.null(w)) {
+    if (is.null(w) & !landscape) {
         tmp <- docx_dim(doc)
         w <- tmp$page["width"] - sum(tmp$margins[c("left", "right")])
+    } else if (is.null(w) & landscape) {
+        tmp <- docx_dim(doc)
+        w <- tmp$page["height"] - sum(tmp$margins[c("top", "bottom")])
     }
 
     # ft <- autofit(ft, 0, 0)
@@ -468,4 +498,28 @@ body_add_crosstable <- function(doc, crosstable, compact = FALSE, id = ".id", va
 
     doc <- body_add_flextable(doc, value = ft, pos = pos)
     return(doc)
+}
+
+##' Apply the cabane theme (blue header)
+##' 
+##' @name theme_cabane
+##' @param x a flextable object
+##' @return
+##'   A \code{flextable object}
+##' @author David Hajage
+##' @examples
+##' \dontrun{
+##' library(flextable)
+##' theme_cabane(flextable(head(iris)))
+##' }
+##' @keywords univar
+##' @export
+##' @importFrom flextable theme_vanilla
+theme_cabane <- function (x) {
+    x <- theme_vanilla(x)
+    
+    x <- bg(x, bg = "#365F91", part = "header")
+    x <- color(x, color = "#FFFFFF", part = "header")
+    x <- height(x, height = 0, part = "header")
+    x
 }

@@ -16,8 +16,13 @@
 ##' }
 ##' @keywords univar
 ##' @export
-##' @import ReporteRs
 addNormal <- function(doc, value, stylename = "Normal", ...) {
+    if (!requireNamespace("ReporteRs", quietly = TRUE)) {
+        stop("Package \"ReporteRs\" needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+    require(ReporteRs)
+    
     if (class(value) == "character") {
         value <- do.call("set_of_paragraphs", args = lapply(value, pot))
     }
@@ -42,8 +47,14 @@ addNormal <- function(doc, value, stylename = "Normal", ...) {
 ##' }
 ##' @keywords univar
 ##' @export
-##' @import ReporteRs
 addComment <- function(doc, value, stylename = "Comment", ...) {
+    
+    if (!requireNamespace("ReporteRs", quietly = TRUE)) {
+        stop("Package \"ReporteRs\" needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+    require(ReporteRs)
+    
     addParagraph(doc, value, stylename = stylename)
 }
 
@@ -65,8 +76,14 @@ addComment <- function(doc, value, stylename = "Comment", ...) {
 ##' }
 ##' @keywords univar
 ##' @export
-##' @import ReporteRs
 addAlert <- function(doc, value, stylename = "Alert", ...) {
+    
+    if (!requireNamespace("ReporteRs", quietly = TRUE)) {
+        stop("Package \"ReporteRs\" needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+    require(ReporteRs)
+    
     addParagraph(doc, value, stylename = stylename)
 }
 
@@ -88,8 +105,14 @@ addAlert <- function(doc, value, stylename = "Alert", ...) {
 ##' }
 ##' @keywords univar
 ##' @export
-##' @import ReporteRs
 addVerbatim <- function(doc, value, stylename = "Verbatim", ...) {
+    
+    if (!requireNamespace("ReporteRs", quietly = TRUE)) {
+        stop("Package \"ReporteRs\" needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+    require(ReporteRs)
+    
     addParagraph(doc, value, stylename = stylename, ...)
 }
 
@@ -110,8 +133,13 @@ addVerbatim <- function(doc, value, stylename = "Verbatim", ...) {
 ##' }
 ##' @keywords univar
 ##' @export
-##' @import ReporteRs
 addCode <- function(doc, value, ...) {
+    if (!requireNamespace("ReporteRs", quietly = TRUE)) {
+        stop("Package \"ReporteRs\" needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+    require(ReporteRs)
+    
     addRScript(doc, text = value, par.properties = parProperties(shading.color = "#eeeeee"))
 }
 
@@ -133,8 +161,14 @@ addCode <- function(doc, value, ...) {
 ##' }
 ##' @keywords univar
 ##' @export
-##' @import ReporteRs
 addPlotlegend <- function(doc, value, stylename = "figurereference", ...) {
+    
+    if (!requireNamespace("ReporteRs", quietly = TRUE)) {
+        stop("Package \"ReporteRs\" needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+    require(ReporteRs)
+    
     addParagraph(doc, value, stylename = stylename)
 }
 
@@ -156,8 +190,14 @@ addPlotlegend <- function(doc, value, stylename = "figurereference", ...) {
 ##' }
 ##' @keywords univar
 ##' @export
-##' @import ReporteRs
 addTablegend <- function(doc, value, stylename = "tablereference", ...) {
+    
+    if (!requireNamespace("ReporteRs", quietly = TRUE)) {
+        stop("Package \"ReporteRs\" needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+    require(ReporteRs)
+    
     addParagraph(doc, value, stylename = stylename)
 }
 
@@ -179,8 +219,14 @@ addTablegend <- function(doc, value, stylename = "tablereference", ...) {
 ##' }
 ##' @keywords univar
 ##' @export
-##' @import ReporteRs
 addItemize <- function(doc, value, level = 1, ...) {
+    
+    if (!requireNamespace("ReporteRs", quietly = TRUE)) {
+        stop("Package \"ReporteRs\" needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+    require(ReporteRs)
+    
     unordered.list.level1 <- parProperties(list.style = "unordered", level = 1)
     unordered.list.level2 <- parProperties(list.style = "unordered", level = 2)
     unordered.list.level3 <- parProperties(list.style = "unordered", level = 3)
@@ -216,8 +262,14 @@ addItemize <- function(doc, value, level = 1, ...) {
 ##' }
 ##' @keywords univar
 ##' @export
-##' @import ReporteRs
 addEnumerate <- function(doc, value, level = 1, ...) {
+    
+    if (!requireNamespace("ReporteRs", quietly = TRUE)) {
+        stop("Package \"ReporteRs\" needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+    require(ReporteRs)
+    
     ordered.list.level1 <- parProperties(list.style = "ordered", level = 1)
     ordered.list.level2 <- parProperties(list.style = "ordered", level = 2)
     ordered.list.level3 <- parProperties(list.style = "ordered", level = 3)
@@ -251,8 +303,14 @@ addEnumerate <- function(doc, value, level = 1, ...) {
 ##' }
 ##' @keywords univar
 ##' @export
-##' @import ReporteRs
 simple.table <- function(dataset, add.rownames = FALSE) {
+    
+    if (!requireNamespace("ReporteRs", quietly = TRUE)) {
+        stop("Package \"ReporteRs\" needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+    require(ReporteRs)
+    
     ft = FlexTable(dataset, add.rownames = add.rownames)
     ft[, , to = "header"] = textBold()
     #    ft[, , to = "header"] = parRight()
@@ -304,7 +362,8 @@ simple.table <- function(dataset, add.rownames = FALSE) {
 ##'                      history = list(
 ##'                                     list(version = '1', 
 ##'                                          author = 'Goldorak', 
-##'                                          description = c('First description', 'Primary outcome analysis'), 
+##'                                          description = c('First description', 
+##'                                          'Primary outcome analysis'), 
 ##'                                          date = '28/03/1979'), 
 ##'                                     list(version = '1.3', 
 ##'                                          author = 'Goldorak', 
@@ -315,8 +374,13 @@ simple.table <- function(dataset, add.rownames = FALSE) {
 ##' }
 ##' @keywords univar
 ##' @export
-##' @import ReporteRs
 create.report <- function(template = c("gerc", "urc", "cephepi"), title = "", acronym = "", version = "", npromo = "", nct = "", invest = "", biostat = "", methodo = "", date_lastmodif = "", date_freez = "", date_update = "", history = NULL) {
+    
+    if (!requireNamespace("ReporteRs", quietly = TRUE)) {
+        stop("Package \"ReporteRs\" needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+    require(ReporteRs)
     
     URC <- FALSE
     if (template[1] == "urc") {

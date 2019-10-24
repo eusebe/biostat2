@@ -4,14 +4,15 @@
 \alias{cross}
 \title{Describe everything}
 \usage{
-cross(formula = cbind(...) ~ ., data = NULL, funs = c(` ` = mysummary),
-  ..., margin = 0:2, total = FALSE, digits = 2, showNA = c("no",
-  "ifany", "always"), method = c("pearson", "kendall", "spearman"),
-  times = NULL, followup = FALSE, test = FALSE,
+cross(formula = cbind(...) ~ ., data = NULL, funs = c(` ` =
+  mysummary), ..., margin = 0:2, total = FALSE, digits = 2,
+  showNA = c("no", "ifany", "always"), method = c("pearson", "kendall",
+  "spearman"), times = NULL, followup = FALSE, test = FALSE,
   test.summarize = test.summarize.auto,
-  test.survival = test.survival.logrank, test.tabular = test.tabular.auto,
-  show.test = display.test, plim = 4, show.method = TRUE,
-  effect = FALSE, effect.summarize = effect.diff.mean.auto,
+  test.survival = test.survival.logrank,
+  test.tabular = test.tabular.auto, show.test = display.test,
+  plim = 4, show.method = TRUE, effect = FALSE,
+  effect.summarize = effect.diff.mean.auto,
   effect.tabular = effect.or.row.by.col,
   effect.survival = effect.survival.coxph, conf.level = 0.95,
   label = FALSE, regroup = FALSE)
@@ -107,8 +108,7 @@ function.}
 
 \item{conf.level}{The desired confidence interval level}
 
-\item{label}{whether to display labels of variables (using
-\code{label} in package \code{Hmisc})}
+\item{label}{whether to display labels of variables)}
 
 \item{regroup}{whether to regroup numerics with numerics and
 factors with factors in \code{cbind} (logical)}

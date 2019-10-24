@@ -2,7 +2,7 @@
 % Please edit documentation in R/officer.r
 \name{body_add_plotlegend}
 \alias{body_add_plotlegend}
-\title{Add a new paragraph with a Plotlegend style}
+\title{Add a new paragraph with a figurereference style}
 \usage{
 body_add_plotlegend(x, value, style = "figurereference", pos = "after")
 }
@@ -19,7 +19,7 @@ body_add_plotlegend(x, value, style = "figurereference", pos = "after")
 a new rdocx object
 }
 \description{
-Add a new paragraph with a Plotlegend style
+Add a new paragraph with a figurereference style
 }
 \examples{
 \dontrun{

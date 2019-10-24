@@ -4,10 +4,11 @@
 \alias{create.officer}
 \title{Create a docx object with a specific template and informations already inserted}
 \usage{
-create.officer(template = c("gerc", "urc", "cephepi"), watermark = FALSE,
-  title = "", acronym = "", version = "", npromo = "", nct = "",
-  invest = "", biostat = "", methodo = "", date_lastmodif = "",
-  date_freez = "", date_update = "", history = NULL)
+create.officer(template = c("gerc", "urc", "cephepi"),
+  watermark = FALSE, title = "", acronym = "", version = "",
+  npromo = "", nct = "", invest = "", biostat = "", methodo = "",
+  date_lastmodif = "", date_freez = "", date_update = "",
+  history = NULL)
 }
 \arguments{
 \item{template}{either 'gerc', 'urc', or 'cephepi'}
@@ -47,7 +48,7 @@ Create a docx object with a specific template and informations already inserted
 \examples{
 \dontrun{
 library(biostat2)
-library(ReporteRs)
+library(officer)
 doc <- create.officer(template = 'urc',
                      title = 'A great study',
                      watermark = FALSE,
@@ -64,7 +65,8 @@ doc <- create.officer(template = 'urc',
                      history = list(
                                     list(version = '1',
                                          author = 'Goldorak',
-                                         description = c('First description', 'Primary outcome analysis'),
+                                         description = c('First description', 
+                                         'Primary outcome analysis'),
                                          date = '28/03/1979'),
                                     list(version = '1.3',
                                          author = 'Goldorak',

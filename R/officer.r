@@ -57,8 +57,8 @@ body_add_comment <- function(x, value, style = "Comment", pos = "after") {
 ##' @examples
 ##' \dontrun{
 ##' library(biostat2)
-##' library(ReporteRs)
-##' doc <- addAlert(doc, "Coucou")
+##' library(officer)
+##' doc <- body_add_alert(doc, "Coucou")
 ##' }
 ##' @keywords univar
 ##' @export
@@ -90,7 +90,7 @@ body_add_verbatim <- function(x, value, style = "Verbatim", pos = "after") {
     body_add_par(x, value, style = style)
 }
 
-##' Add a new paragraph with a Plotlegend style
+##' Add a new paragraph with a figurereference style
 ##'
 ##' @name body_add_plotlegend
 ##' @param x the rdocx object (created with the read_docx function of officer package)
@@ -113,7 +113,36 @@ body_add_plotlegend <- function(x, value, style = "figurereference", pos = "afte
     body_add_par(x, value, style = style)
 }
 
-##' Add a new paragraph with a Tablegend style
+##' Add a new paragraph with a figurereference2 style 
+##'
+##' @name body_add_plotref
+##' @param x the rdocx object (created with the read_docx function of officer package)
+##' @param value a character string
+##' @param depth integer, what is the depth of the current section to print
+##' @param style a character string
+##' @return
+##'   a new rdocx object
+##' @author David Hajage
+##' @examples
+##' \dontrun{
+##' library(biostat2)
+##' library(officer)
+##' doc <- body_add_plotref(doc, "Coucou")
+##' }
+##' @keywords univar
+##' @export
+##' @import officer
+body_add_plotref <- function (x, value, depth = 1, style = "figurereference2") {
+    x <- body_add_par(x, value, style = style)    
+    x <- slip_in_text(x, str = ". ", style = NULL, pos = "before")
+    x <- slip_in_seqfield(x, str = "SEQ graph \\* Arabic \\s 1 \\* MERGEFORMAT", style = NULL, pos = "before")
+    x <- slip_in_text(x, str = "-", style = NULL, pos = "before")
+    x <- slip_in_seqfield(x, str = sprintf("STYLEREF %.0f \\s", depth), style = NULL, pos = "before")
+    x <- slip_in_text(x, str = "Figure ", style = NULL, pos = "before")
+    x
+}
+
+##' Add a new paragraph with a tablereference style
 ##'
 ##' @name body_add_tablegend
 ##' @param x the rdocx object (created with the read_docx function of officer package)
@@ -127,13 +156,42 @@ body_add_plotlegend <- function(x, value, style = "figurereference", pos = "afte
 ##' \dontrun{
 ##' library(biostat2)
 ##' library(officer)
-##' doc <- body_add_plotlegend(doc, "Coucou")
+##' doc <- body_add_tablegend(doc, "Coucou")
 ##' }
 ##' @keywords univar
 ##' @export
 ##' @import officer
 body_add_tablegend <- function(x, value, style = "tablereference", pos = "after") {
     body_add_par(x, value, style = style)
+}
+
+##' Add a new paragraph with a tablereference2 style
+##'
+##' @name body_add_tableref
+##' @param x the rdocx object (created with the read_docx function of officer package)
+##' @param value a character string
+##' @param depth integer, what is the depth of the current section to print
+##' @param style a character string
+##' @return
+##'   a new rdocx object
+##' @author David Hajage
+##' @examples
+##' \dontrun{
+##' library(biostat2)
+##' library(officer)
+##' doc <- body_add_plotlegend2(doc, "Coucou")
+##' }
+##' @keywords univar
+##' @export
+##' @import officer
+body_add_tableref <- function (x, value, depth = 1, style = "tablereference2") {
+    x <- body_add_par(x, value, style = style)    
+    x <- slip_in_text(x, str = ". ", style = NULL, pos = "before")
+    x <- slip_in_seqfield(x, str = "SEQ table \\* Arabic \\s 1 \\* MERGEFORMAT", style = NULL, pos = "before")
+    x <- slip_in_text(x, str = "-", style = NULL, pos = "before")
+    x <- slip_in_seqfield(x, str = sprintf("STYLEREF %.0f \\s", depth), style = NULL, pos = "before")
+    x <- slip_in_text(x, str = "Tableau ", style = NULL, pos = "before")
+    x
 }
 
 ##' Add a title
@@ -211,6 +269,149 @@ body_add_enumerate <- function(x, value, level = 1, style = "Enumerate", pos = "
     body_add_par(x, value, style = style)
 }
 
+
+##' add an image into an rdocx object, with autofiting of width and height
+##'
+##' @name body_add_img_autofit
+##' @param x the rdocx object (created with the read_docx function of officer package)
+##' @param src image filename, the basename of the file must not contain any blank
+##' @param style paragraph style
+##' @param pos where to add the new element relative to the cursor, one of "after", "before", "on"
+##' @param landscape is the image inserted in a landscape section? (default: FALSE)
+##' @return
+##'   a new rdocx object
+##' @author David Hajage
+##' @examples
+##' \dontrun{
+##' library(biostat2)
+##' library(officer)
+##' 
+##' jpeg("carre.jpg", width = 300, height = 300)
+##' plot(1)
+##' dev.off()
+##' jpeg("long.jpg", width = 300, height = 600)
+##' plot(1)
+##' dev.off()
+##' jpeg("large.jpg", width = 600, height = 300)
+##' plot(1)
+##' dev.off()
+##' 
+##' doc <- read_docx()
+##' doc <- body_add_img_autofit(doc, "carre.jpg")
+##' doc <- body_add_img_autofit(doc, "long.jpg") 
+##' doc <- body_add_img_autofit(doc, "large.jpg") 
+##' doc <- body_end_section_portrait(doc)
+##' 
+##' doc <- body_add_img_autofit(doc, "carre.jpg", landscape = TRUE) 
+##' doc <- body_add_img_autofit(doc, "long.jpg", landscape = TRUE) 
+##' doc <- body_add_img_autofit(doc, "large.jpg", landscape = TRUE) 
+##' doc <- body_end_section_landscape(doc)
+##' 
+##' print(doc, target = "toto.docx")
+##' }
+##' @keywords univar
+##' @export
+##' @import officer
+body_add_img_autofit <- function(x, src, style = NULL, pos = "after", landscape = FALSE) {
+    if (!requireNamespace("magick", quietly = TRUE)) {
+        stop("Package \"magick\" needed for this function to work. Please install it.",
+             call. = FALSE)
+    }
+    
+    tmp <- docx_dim(x)
+    w <- tmp$page["width"] - sum(tmp$margins[c("left", "right")])
+    h <- tmp$page["height"] - sum(tmp$margins[c("top", "bottom")])
+
+    require(magick)
+    img_info <- image_info(image_read(src))
+    ratio_wh <- img_info$width/img_info$height
+    
+    if (!landscape) {
+        if (ratio_wh < 1) { # image plus longue que large => on redimensionne a la auteur de la page
+            height <- h
+            width <- h*ratio_wh
+        } else { # image plus large que longue
+            width <- w
+            height <- w/ratio_wh
+        }
+    } else {
+        if (ratio_wh <= 1) { # image plus longue que large => on redimensionne a la auteur de la page
+            height <- w
+            width <- w*ratio_wh
+        } else { # image plus large que longue
+            width <- h
+            height <- h/ratio_wh
+        }
+    }
+    
+    x <- body_add_img(x = x, src = src, style = style, width = width, height = height, pos = pos)
+    return(x)
+}
+# doc <- read_docx()
+# doc <- body_add_img_autofit(doc, "../rapports/graph/AF.jpg") # image carrée
+# doc <- body_add_img_autofit(doc, "../rapports/graph/os.jpg") # image longue
+# doc <- body_add_img_autofit(doc, "../rapports/graph/os2.jpg") # image large
+# doc <- body_add_crosstable(doc, cross(cbind(...) ~ ., data = esoph))
+# doc <- body_end_section_portrait(doc)
+# 
+# doc <- body_add_img_autofit(doc, "../rapports/graph/AF.jpg", landscape = TRUE) # image carrée
+# doc <- body_add_img_autofit(doc, "../rapports/graph/os.jpg", landscape = TRUE) # image longue
+# doc <- body_add_img_autofit(doc, "../rapports/graph/os2.jpg", landscape = TRUE) # image large
+# doc <- body_add_crosstable(doc, cross(cbind(...) ~ ., data = esoph))
+# doc <- body_end_section_landscape(doc)
+# 
+# print(doc, target = "toto.docx")
+
+
+##' add a table into an rdocx object, with autofiting of width
+##'
+##' @param x an rdocx object
+##' @param value \code{flextable} object
+##' @param align left, center (default) or right
+##' @param pos where to add the flextable relative to the cursor, one of "after", "before", "on" (end of line).
+##' @param split set to TRUE if you want to activate Word option 'Allow row to break across pages'.
+##' @param landscape is the table inserted in a landscape section? (default: FALSE)
+##' @return
+##'   A new \code{rdocx} object
+##' @author David Hajage
+##' @examples
+##' \dontrun{
+##' library(biostat2)
+##' library(officer)
+##' library(flextable)
+##' mytable <- flextable(head(iris))
+##' doc <- read_docx()
+##' doc <- body_add_flextable(doc, mytable)
+##' doc <- body_add_break(doc)
+##' doc <- body_add_flextable_autofit(doc, mytable)
+##' doc <- body_end_section_portrait(doc)
+##' doc <- body_add_flextable(doc, mytable)
+##' doc <- body_add_break(doc)
+##' doc <- body_add_flextable_autofit(doc, mytable, landscape = TRUE)
+##' doc <- body_end_section_landscape(doc)
+##' 
+##' print(doc, target = "toto.docx")
+##' }
+##' @keywords univar
+##' @export
+##' @importFrom flextable flextable
+##' @import officer
+body_add_flextable_autofit <- function(x, value, align = "center", pos = "after", split = FALSE, landscape = FALSE) {
+    if (!landscape) {
+        tmp <- docx_dim(doc)
+        w <- tmp$page["width"] - sum(tmp$margins[c("left", "right")])
+    } else {
+        tmp <- docx_dim(doc)
+        w <- tmp$page["height"] - sum(tmp$margins[c("top", "bottom")])
+    }
+    
+    ft <- width(value, width = w*dim(value)$widths/sum(dim(value)$widths))
+    
+    doc <- body_add_flextable(x, value = ft, align = align, pos = pos, split = split)
+    return(doc)
+}
+
+
 ##' Create a docx object with a specific template and informations already inserted
 ##'
 ##' @name create.officer
@@ -234,7 +435,7 @@ body_add_enumerate <- function(x, value, level = 1, style = "Enumerate", pos = "
 ##' @examples
 ##' \dontrun{
 ##' library(biostat2)
-##' library(ReporteRs)
+##' library(officer)
 ##' doc <- create.officer(template = 'urc',
 ##'                      title = 'A great study',
 ##'                      watermark = FALSE,
@@ -251,7 +452,8 @@ body_add_enumerate <- function(x, value, level = 1, style = "Enumerate", pos = "
 ##'                      history = list(
 ##'                                     list(version = '1',
 ##'                                          author = 'Goldorak',
-##'                                          description = c('First description', 'Primary outcome analysis'),
+##'                                          description = c('First description', 
+##'                                          'Primary outcome analysis'),
 ##'                                          date = '28/03/1979'),
 ##'                                     list(version = '1.3',
 ##'                                          author = 'Goldorak',
@@ -357,6 +559,9 @@ create.officer <- function(template = c("gerc", "urc", "cephepi"), watermark = F
         ft_history <- align(ft_history, align = "left", part = "all" )
         
         doc <- cursor_reach(doc, keyword = "HISTORY")
+        tmp <- docx_dim(doc)
+        w <- tmp$page["width"] - sum(tmp$margins[c("left", "right")])
+        ft_history <- width(ft_history, width = w*dim(ft_history)$widths/sum(dim(ft_history)$widths))
         doc <- body_add_flextable(doc, value = ft_history, align = "center", pos = "on")
     } else {
         doc <- cursor_reach(doc, keyword = "HISTORY")

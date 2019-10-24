@@ -14,43 +14,49 @@
 ##' @param show.method show.method
 ##' @author David Hajage
 ##' @keywords internal
-##' @importFrom plyr dlply
-##' @importFrom plyr ddply
-##' @importFrom plyr .
-##' @importFrom reshape2 dcast
+##' @importFrom stats reshape
 summarize.by <- function(x, by, funs = c(mean, sd, quantile, n, na), ..., showNA = c("no", "ifany", "always"), total = FALSE, digits = 2, test = FALSE, test.summarize = test.summarize.auto, show.test = display.test, plim = 4, show.method = TRUE, effect = FALSE, effect.summarize = effect.diff.mean.auto, conf.level = 0.95, show.effect = display.effect) {
-
+    
     showNA <- showNA[1]
-
+    
     by2 <- by
     if (showNA == "always" | (showNA == "ifany" & anyNA(by))) {
         by2 <- addNA(by2)
     }
-
+    
     if (!is.numeric(x))
         stop("x doit etre numerique")
-
+    
     if (!is.character(funs)) {
         nomf <- names(funs)
         funs <- as.character(as.list(substitute(funs)))
         funs <- funs[funs != "c" & funs != "list"]
         names(funs) <- nomf
     }
-
+    
     fun <- function(df, funs = funs, ...) summarize(df[, 1], funs = funs, digits = digits, ...)
     df <- data.frame(x, by2, check.names = FALSE)
     if (showNA == "no") {
         df <- df[!is.na(df$by2), ]
     }
     names(df) <- c(names(df)[1], "by")
-    res <- ddply(df, .(by), fun, funs = funs, ..., .drop = FALSE)
-
-    results <- dcast(res, variable ~ by, value.var = "value")
-
-    results$variable <- factor(results$variable, as.character(unique(res$variable)), as.character(unique(res$variable)))
-    results <- results[order(results$variable), ]
-
-  if (identical(total, 1) | identical(total, 1:2) | identical(total, TRUE)) {
+    # res <- ddply(df, .(by), fun, funs = funs, ..., .drop = FALSE)
+    # sans utiliser ddply
+    tmp <- by(df, df["by"], fun, funs = funs, ...)
+    bylab <- unlist(mapply(rep, names(tmp), each = sapply(tmp, function(x) nrow(x)), SIMPLIFY = FALSE))
+    res <- do.call("rbind", tmp)
+    res <- cbind(by = bylab, res)
+    rownames(res) <- NULL
+    
+    # results <- dcast(res, variable ~ by, value.var = "value")
+    # results$variable <- factor(results$variable, as.character(unique(res$variable)), as.character(unique(res$variable)))
+    # results <- results[order(results$variable), ]
+    # sans utiliser dcast
+    results <- reshape(res, idvar = "variable", timevar = "by", v.names = "value", direction = "wide", sep = "_8_8__8__")
+    names(results) <- sub("^value_8_8__8__", "", names(results))
+    
+    
+    if (identical(total, 1) | identical(total, 1:2) | identical(total, TRUE)) {
         results$Total <- summarize(x, funs = funs, ..., digits = digits)[, 2]
     }
     ## results <- sapply(results, function(x) if (is.numeric(x)) as.character(round(x, digits)) else as.character(x))
@@ -89,8 +95,6 @@ summarize.by <- function(x, by, funs = c(mean, sd, quantile, n, na), ..., showNA
 ##' @param label label
 ##' @author David Hajage
 ##' @keywords internal
-##' @importFrom Hmisc label
-##' @importFrom plyr ldply mapvalues laply
 summarize.data.frame.by <- function(df, by, funs = c(mean, sd, quantile, n, na), ..., showNA = c("no", "ifany", "always"), total = FALSE, digits = 2, test = FALSE, test.summarize = test.summarize.auto, show.test = display.test, plim = 4, show.method = TRUE, label = FALSE, effect = FALSE, effect.summarize = effect.diff.mean.auto, conf.level = 0.95, show.effect = display.effect) {
   if (!is.character(funs)) {
       nomf <- names(funs)
@@ -103,10 +107,10 @@ summarize.data.frame.by <- function(df, by, funs = c(mean, sd, quantile, n, na),
     noms.by <- names(by)
 
   if (label) {
-    labs.df <- sapply(df, label)
+    labs.df <- sapply(df, function(x) get_label(x))
     labs.df[labs.df == ""] <- noms.df[labs.df == ""]
     # names(df) <- noms.df
-    labs.by <- sapply(by, label)
+    labs.by <- sapply(by, function(x) get_label(x))
     labs.by[labs.by == ""] <- noms.by[labs.by == ""]
     # names(by) <- noms.by
   } else {
@@ -114,12 +118,22 @@ summarize.data.frame.by <- function(df, by, funs = c(mean, sd, quantile, n, na),
       labs.by <- noms.by
   }
 
-    # results <- llply(by, function(y) ldply(df, function(x) summarize.by(x, y, funs = funs, showNA = showNA, total = total, digits = digits, test = test, test.summarize = test.summarize, show.test = show.test, plim = plim, show.method = show.method)))
-    results <- llply(by, function(y) ldply(df, function(x) summarize.by(x, y, funs = funs, ..., showNA = showNA, total = total, digits = digits, test = test, test.summarize = test.summarize, show.test = show.test, plim = plim, show.method = show.method, effect = effect, effect.summarize = effect.summarize, conf.level = conf.level, show.effect = show.effect)))
-
+    # results <- llply(by, function(y) ldply(df, function(x) summarize.by(x, y, funs = funs, ..., showNA = showNA, total = total, digits = digits, test = test, test.summarize = test.summarize, show.test = show.test, plim = plim, show.method = show.method, effect = effect, effect.summarize = effect.summarize, conf.level = conf.level, show.effect = show.effect)))
+    # sans utiliser ldply et llply
+    results <- lapply(by, function(y) {
+        tmp <- lapply(df, function(x) summarize.by(x, y, funs = funs, ..., showNA = showNA, total = total, digits = digits, test = test, test.summarize = test.summarize, show.test = show.test, plim = plim, show.method = show.method, effect = effect, effect.summarize = effect.summarize, conf.level = conf.level, show.effect = show.effect))
+        idlab <- unlist(mapply(rep, names(tmp), each = sapply(tmp, function(x) nrow(x)), SIMPLIFY = FALSE))
+        res <- do.call("rbind", tmp)
+        res <- cbind(.id = idlab, res)
+        rownames(res) <- NULL
+        res
+    })
+    
   if (length(results) > 1) {
       n.df <- rep(length(unique(results[[1]]$variable)), length(results))
-      n.by <- laply(results, ncol) - 2
+      # n.by <- laply(results, ncol) - 2
+      # sans utiliser lapply
+      n.by <- sapply(results, ncol) - 2
       results <- cbind(results[[1]], cbind.list(lapply(results[-1], function(x) x[, -(1:2)])))
   } else {
       n.df <- nrow(results[[1]])

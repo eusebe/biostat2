@@ -44,13 +44,11 @@ freq <- function(x, showNA = c("no", "ifany", "always"), total = FALSE, digits =
 ##' @param showNA showNA
 ##' @author David Hajage
 ##' @keywords internal
-##' @importFrom Hmisc label
-##' @importFrom plyr mapvalues
 freq.data.frame <- function(df, showNA = c("no", "ifany", "always"), total = FALSE, digits = 2, label = FALSE) {
     noms.df <- names(df)
 
     if (label) {
-        labs.df <- sapply(df, label)
+        labs.df <- sapply(df, function(x) get_label(x))
         labs.df[labs.df == ""] <- noms.df[labs.df == ""]
         # names(df) <- noms.df
     } else {
@@ -60,7 +58,9 @@ freq.data.frame <- function(df, showNA = c("no", "ifany", "always"), total = FAL
 
   dfl <- as.list(df)
 
-  results <- llply(dfl, freq, showNA = showNA, total = total, digits = digits)
+  # results <- llply(dfl, freq, showNA = showNA, total = total, digits = digits)
+  # idem sans utiliser llply
+  results <- lapply(dfl, freq, showNA = showNA, total = total, digits = digits)
   n.df <- sapply(results, nrow)
 
   for (i in 1:length(results)) {

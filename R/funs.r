@@ -108,6 +108,6 @@ nna <- function(x) {
 ##' @param dig number of digits
 ##' @keywords internal
 mysummary <- function(x, na.rm = TRUE, dig = 2) {
-        return(c("Min / Max" = minmax(x), "Med [IQR]" = mediqr(x), "Moy (std)" = moystd(x), "N (NA)" = nna(x)))
+        return(c("Min / Max" = minmax(x, dig = dig), "Med [IQR]" = mediqr(x, dig = dig), "Moy (std)" = moystd(x, dig = dig), "N (NA)" = nna(x)))
 }
 

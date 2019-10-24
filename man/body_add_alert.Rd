@@ -24,8 +24,8 @@ Add a new paragraph with a Alert style
 \examples{
 \dontrun{
 library(biostat2)
-library(ReporteRs)
-doc <- addAlert(doc, "Coucou")
+library(officer)
+doc <- body_add_alert(doc, "Coucou")
 }
 }
 \author{

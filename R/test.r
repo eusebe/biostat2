@@ -36,10 +36,28 @@ display.test <- function(test, digits = 4, method = TRUE) {
   }
 }
 
+##' A fisher test robust to exceeded memory
+##'
+##' Compute a fisher test as appropriate (with simulated p-value if necessary)
+##'
+##' @param x vector
+##' @param y another vector
+##' @author David Hajage
+##' @return a htest object
+##' @export
+##' @importFrom stats fisher.test
+myfisher.test <- function(x, y) {
+    f <- factory(fisher.test)
+    res <- f(x, y)
+    if (!is.null(res$err)) {
+        res <- f(x, y, simulate.p.value = TRUE)
+    }
+    res$value
+}
+
 ##' test for contingency table
 ##'
-##' Compute a chisq.test, a chisq.test with correction of continuity
-##' or a fisher test as appropriate
+##' Compute a chisq.test, or a fisher test as appropriate
 ##'
 ##' @param x vector
 ##' @param y another vector
@@ -57,11 +75,36 @@ test.tabular.auto <- function(x, y) {
   ## else if (all(exp >= 3))
   ##   test <- suppressWarnings(chisq.test(x, y, correct = TRUE))
   else
-    test <- fisher.test(x, y)
+    test <- myfisher.test(x, y)
 
   p <- test$p.value
   method <- test$method
   list(p.value = p, method = method)
+}
+
+##' test for contingency table
+##'
+##' Compute a chisq.test or a chisq.test with correction of continuity
+##'
+##' @param x vector
+##' @param y another vector
+##' @author David Hajage
+##' @return a list with two componments: p.value and method
+##' @export
+##' @importFrom stats chisq.test fisher.test
+test.tabular.chisq <- function(x, y) {
+    tab <- table(x, y)
+    exp <- rowSums(tab)%*%t(colSums(tab))/sum(tab)
+    if (any(dim(table(x, y)) == 1))
+        test <- list(p.value = NULL, method = NULL)
+    else if (all(exp >= 5))
+        test <- suppressWarnings(chisq.test(x, y, correct = FALSE))
+    else 
+        test <- suppressWarnings(chisq.test(x, y, correct = TRUE))
+
+    p <- test$p.value
+    method <- test$method
+    list(p.value = p, method = method)
 }
 
 ##' test for contingency table
@@ -77,7 +120,7 @@ test.tabular.fisher <- function(x, y) {
   if (any(dim(table(x, y)) == 1))
     test <- list(p.value = NULL, method = NULL)
   else
-    test <- fisher.test(x, y)
+    test <- myfisher.test(x, y)
 
   p <- test$p.value
   method <- test$method
@@ -146,6 +189,11 @@ test.summarize.auto.old <- function(x, g) {
 ##' @importFrom nortest ad.test
 ##' @export
 test.summarize.auto <- function(x, g) {
+    xx <- x[!is.na(x) & !is.na(g)]
+    gg <- g[!is.na(x) & !is.na(g)]
+    x <- x
+    g <- g
+  
     ng <- table(g)
     
     if (length(ng) <= 1) {
@@ -177,7 +225,7 @@ test.summarize.auto <- function(x, g) {
         }
         test <- switch(type,
                        wilcox = wilcox.test(x ~ g, correct = FALSE),
-                       kruskal = kruskal.test(x, g),
+                       kruskal = kruskal.test(x, as.factor(g)),
                        t.unequalvar = t.test(x ~  g, var.equal = FALSE),
                        t.equalvar = t.test(x ~  g, var.equal = TRUE),
                        a.unequalvar = oneway.test(x ~  g, var.equal = FALSE),
@@ -198,6 +246,11 @@ test.summarize.auto <- function(x, g) {
 ##' @author David Hajage
 ##' @export
 test.summarize.kruskal <- function(x, g) {
+  xx <- x[!is.na(x) & !is.na(g)]
+  gg <- g[!is.na(x) & !is.na(g)]
+  x <- x
+  g <- g
+  
   ng <- table(g)
   if (length(ng) <= 1) {
       p <- NULL
@@ -207,7 +260,7 @@ test.summarize.kruskal <- function(x, g) {
       p <- test$p.value
       method <- test$method
   } else if (length(ng) > 2) {
-      test <- kruskal.test(x, g)
+      test <- kruskal.test(x, as.factor(g))
       p <- test$p.value
       method <- test$method
   }
@@ -224,6 +277,11 @@ test.summarize.kruskal <- function(x, g) {
 ##' @author David Hajage
 ##' @export
 test.summarize.oneway.equalvar <- function(x, g) {
+  xx <- x[!is.na(x) & !is.na(g)]
+  gg <- g[!is.na(x) & !is.na(g)]
+  x <- x
+  g <- g
+  
   ng <- table(g)
   if (length(ng) <= 1) {
     p <- NULL
@@ -250,6 +308,11 @@ test.summarize.oneway.equalvar <- function(x, g) {
 ##' @author David Hajage
 ##' @export
 test.summarize.oneway.unequalvar <- function(x, g) {
+  xx <- x[!is.na(x) & !is.na(g)]
+  gg <- g[!is.na(x) & !is.na(g)]
+  x <- x
+  g <- g
+  
   ng <- table(g)
   if (length(ng) <= 1) {
     p <- NULL

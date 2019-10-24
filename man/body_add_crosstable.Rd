@@ -5,8 +5,8 @@
 \title{add a table made by the cross function into a officer document}
 \usage{
 body_add_crosstable(doc, crosstable, compact = FALSE, id = ".id",
-  variable = "variable", value = "value", effect = "effect", p = "p",
-  w = NULL, pos = "after")
+  variable = "variable", value = "value", effect = "effect",
+  p = "p", w = NULL, pos = "after", landscape = FALSE)
 }
 \arguments{
 \item{doc}{a \code{docx} object created by \code{read_docx} function (package \code{flextable})}
@@ -28,6 +28,8 @@ body_add_crosstable(doc, crosstable, compact = FALSE, id = ".id",
 \item{w}{width of the table (if \code{NULL}, width of the current document is used)}
 
 \item{pos}{where to add the flextable relative to the cursor, one of "after", "before", "on" (end of line) (see \code{?body_add_flextable}).}
+
+\item{landscape}{is the table inserted in a landscape section? (default: FALSE)}
 }
 \value{
 A \code{docx} object

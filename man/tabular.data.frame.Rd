@@ -6,8 +6,8 @@
 \usage{
 tabular.data.frame(dfx, dfy, margin = 0:2, showNA = c("no", "ifany",
   "always"), total = FALSE, digits = 2, test = FALSE,
-  test.tabular = test.tabular.auto, show.test = display.test, plim = 4,
-  show.method = TRUE, effect = FALSE,
+  test.tabular = test.tabular.auto, show.test = display.test,
+  plim = 4, show.method = TRUE, effect = FALSE,
   effect.tabular = effect.or.row.by.col, conf.level = 0.95,
   show.effect = display.effect, label = FALSE)
 }

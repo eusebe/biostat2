@@ -22,18 +22,16 @@ correlation <- function(x, y, method = c("pearson", "kendall", "spearman"), digi
 ##' @param label label
 ##' @author David Hajage
 ##' @keywords internal
-##' @importFrom Hmisc label
-##' @importFrom plyr mapvalues
 correlation.data.frame <- function(dfx, dfy, method = c("pearson", "kendall", "spearman"), digits = 2, label = FALSE) {
 
     noms.dfx <- names(dfx)
     noms.dfy <- names(dfy)
 
     if (label) {
-        labs.dfx <- sapply(dfx, label)
+        labs.dfx <- sapply(dfx, function(x) get_label(x))
         labs.dfx[labs.dfx == ""] <- noms.dfx[labs.dfx == ""]
         # names(dfx) <- noms.dfx
-        labs.dfy <- sapply(dfy, label)
+        labs.dfy <- sapply(dfy, function(x) get_label(x))
         labs.dfy[labs.dfy == ""] <- noms.dfy[labs.dfy == ""]
         # names(dfy) <- noms.dfy
     } else {

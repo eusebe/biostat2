@@ -119,3 +119,91 @@ biostat2 0.9.1
 --------------
 
 * Entête rétabli dans les documents officer
+
+biostat2 0.9.2
+--------------
+
+* Fonction cross : possibilité de contrôler (via l'argument 'dig') le nombre de décimal quand la fonction "mysummary" (par défaut)
+  est utilisée pour décrire les variables quantitatives (dig = 3 par exemple)
+* Pour les documents produits avec officer/flextable
+    * Entêtes et numéro de pages rétablis dans les documents produits
+    * Le tableau d'historique des changements aura toujours la bonne largeur (il pouvait devenir trop large avec les longs textes)
+    * Réduction de la hauteur du label des colonnes des objets créés avec flexcrosstable (+ jolie couleur bleue assortie 
+      au template du document word)
+
+biostat2 0.9.3
+--------------
+
+* Correction d'un bug avec certains noms de level de variable en facteur... Merci Saïd
+
+biostat2 0.9.4
+--------------
+
+* Deux nouvelles fonctions : 'add_label<-' et 'get_label', pour spécifier ou récupérer le label (le descriptif) d'une variable. Fonctionnement similaire à la fonction 'var_label' du package labelled. 
+* Retrait de la dépendance avec le package Hmisc. Les labels spécifiés avec la fonction 'Hmisc::label<-' devraient toujours fonctionner. Les labels spécifiés avec la fonction 'var_label' du package labelled devrait fonctionner aussi. 
+
+biostat2 0.9.5
+--------------
+
+* Retrait de la dépendance avec les packages reshape2 et plyr. Aucune conséquence pour l'utilisateur.
+* ReporteRs est maintenant une dépendance suggérée (pas nécessaire de l'installer pour utiliser le reste du package)
+* Ajout de deux nouvelles fonctions : body_add_tableref et body_add_plotref :
+  * elles permettent d'inclure une légende à un tableau ou une figure (respectivement), avec une numérotation tenant compte 
+    de la section en cours. Par exemple, les tableaux présents dans la section 5 du document auront pour numérotation : 
+    Tableau 5-1, Tableau 5-2, etc.
+  * Pour inclure un index des tableaux et des figures, il faut inclure dans le code suivant dans votre programme :*
+    (notez le 2 à la fin de "tablereference2"")
+  
+  doc <- body_add_toc(doc, style = "tablereference2")
+  doc <- body_add_toc(doc, style = "figurereference2")
+
+  * En revanche, la numérotation ne s'affichera correctement que si ces index se situent **à la fin du document**. 
+    Si on met ces index en début du document, la numérotation n'apparaitra qu'en **mettant à jour l'index à la main** 
+    (clique droit, "Mettre à jour les champs", puis "Mettre à jour toute la table")
+  * vous pouvez toujours utiliser body_add_plotlegend et body_add_tablegend, l'index s'insérant toujours avec :
+  
+  doc <- body_add_toc(doc, style = "tablereference")
+  doc <- body_add_toc(doc, style = "figurereference")
+
+biostat2 0.9.6
+--------------
+
+* Correction d'un bug : cross n'acceptait plus les options pour les fonctions fournies dans l'argument 'funs'
+  (en particulier : 'funs = mean, na.rm = TRUE' ne fonctionnait plus)
+* Correction d'un bug : le test de kruskal-wallis renvoyait une erreur quand la variable de groupe n'était pas un facteur
+
+biostat2 0.9.7
+--------------
+
+* Nouvelle fonction : theme_cabane. Donne un aspect similaire à ce que fait flexcrosstable à n'importe quel tableau généré avec flextable 
+  (exemple : theme_cabane(flextable(head(iris))))
+* Nouvelle fonction : factory. Cette fonction convertie n'importe quelle fonction en une nouvelle fonction identique, mais qui capture tout type d'erreur ou warning. Exemple : factory(log)("a")
+* Le test de fisher est maintenant plus robuste, notamment en cas erreur liée à un soucis de mémoire ou de catégories trop nombreuses. Quand une erreur de ce type est rencontrée, l'option 'simulate.p.value = TRUE' est automatiquement ajoutée. 
+
+biostat2 0.9.8
+--------------
+
+* Correction d'un bug dans la fonction flexcrosstable (suite à la dernière mise à jour de flextable)
+
+biostat2 0.9.9
+--------------
+
+* Ajout de la fonction 'body_add_img_autofit', qui fonctionne comme 'body_add_img', mais choisit seule une longueur et une largeur adaptée au document. Nécessite l'installation du package 'magick' (une erreur sera produite si le package n'est pas installé)
+* Ajout de la fonction 'body_add_flextable_autofit', qui fonctionne comme 'body_add_flextable', mais choisit seule une largeur adaptée au document
+* Ajout de l'option 'landscape' (FALSE par défaut) à la fonction 'body_add_crosstable'
+
+biostat2 0.9.10
+---------------
+
+* Correction d'un bug d'affichage dans la fonction 'effect.diff.median'
+
+biostat2 0.9.11
+---------------
+
+* Meilleure gestion des données manquantes pour les tests de comparaison de moyennes
+
+biostat2 0.9.12
+---------------
+
+* Amélioration mineure des templates officer
+

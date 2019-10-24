@@ -1,8 +1,6 @@
 ##' Compute survival
 ##'
 ##' @import survival
-##' @importFrom Hmisc label
-##' @importFrom plyr daply
 ##'
 ##' @param surv a Surv object
 ##' @param by by
@@ -57,7 +55,10 @@ survival <- function(surv, by = NULL, times = NULL, followup = FALSE, total = FA
     if (followup) {
       mediansuiv <- round(summary(suivfit.obj)$table[, "median"], digits = digits)
       tmp <- data.frame(unclass(model.frame(formula)[, 1]), model.frame(formula)[, 2])
-      bornes <- daply(tmp, .(tmp[, 3]), function(df) paste("[", round(min(df[df[, 2] == 0, 1]), digits = digits), " ; ", round(max(df[, 1]), digits = digits), "]", sep = ""))
+      # bornes <- daply(tmp, .(tmp[, 3]), function(df) paste("[", round(min(df[df[, 2] == 0, 1]), digits = digits), " ; ", round(max(df[, 1]), digits = digits), "]", sep = ""))
+      # sans utiliser daply
+      bornes <- unlist(unclass(by(tmp, tmp[, 3], function(df) paste("[", round(min(df[df[, 2] == 0, 1]), digits = digits), " ; ", round(max(df[, 1]), digits = digits), "]", sep = ""), simplify = F)))
+      
       suiv <- paste(mediansuiv, bornes)
     } else {
       suiv <- NULL
@@ -112,20 +113,18 @@ survival <- function(surv, by = NULL, times = NULL, followup = FALSE, total = FA
 
 ##' Compute survival (data.frame input)
 ##'
-##' @importFrom Hmisc label
 ##' @param df df
 ##' @param times times
 ##' @param followup followup
 ##' @param digits digits
 ##' @param label label
 ##' @author David Hajage
-##' @importFrom plyr mapvalues
 survival.data.frame <- function(df, times = NULL, digits = 2, followup = FALSE, label = FALSE) {
 
     noms.df <- names(df)
 
     if (label) {
-        labs.df <- sapply(df, label)
+        labs.df <- sapply(df, function(x) get_label(x))
         labs.df[labs.df == ""] <- noms.df[labs.df == ""]
         # names(df) <- noms.df
     } else {
@@ -156,7 +155,6 @@ survival.data.frame <- function(df, times = NULL, digits = 2, followup = FALSE, 
 ##' Compute survival according to a factor (data.frame input)
 ##'
 ##' @import survival
-##' @importFrom Hmisc label
 ##'
 ##' @param df df
 ##' @param by by
@@ -183,10 +181,10 @@ survival.data.frame.by <- function(df, by, times = NULL, followup = FALSE, total
     noms.by <- names(by)
 
     if (label) {
-        labs.df <- sapply(df, label)
+        labs.df <- sapply(df, function(x) get_label(x))
         labs.df[labs.df == ""] <- noms.df[labs.df == ""]
         # names(df) <- noms.df
-        labs.by <- sapply(by, label)
+        labs.by <- sapply(by, function(x) get_label(x))
         labs.by[labs.by == ""] <- noms.by[labs.by == ""]
         # names(by) <- noms.by
     } else {

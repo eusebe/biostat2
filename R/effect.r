@@ -136,7 +136,7 @@ effect.or.row.by.col <- function (x, y, conf.level = 0.95) {
         if (is.null(nrow(ci))) {
             dim(ci) <- c(1, length(ci))
         }
-        effect.name <- paste0(rownames(tab)[1], ", ", paste(colnames(tab)[-1], colnames(tab)[1], sep = " vs "))
+        effect.name <- paste0("Event: ", rownames(tab)[1], ", ", paste(colnames(tab)[-1], colnames(tab)[1], sep = " vs "))
         effect.type <- "Odds ratio (Wald CI)"
     }    
     list(effect = effect, ci = ci, effect.name = effect.name, effect.type = effect.type, conf.level = conf.level)
@@ -167,7 +167,7 @@ effect.rr.row.by.col <- function (x, y, conf.level = 0.95) {
         if (is.null(nrow(ci))) {
             dim(ci) <- c(1, length(ci))
         }
-        effect.name <- paste0(rownames(tab)[1], ", ", paste(colnames(tab)[-1], colnames(tab)[1], sep = " vs "))
+        effect.name <- paste0("Event: ", rownames(tab)[1], ", ", paste(colnames(tab)[-1], colnames(tab)[1], sep = " vs "))
         effect.type <- "Relative risk (Wald CI)"
     }    
     list(effect = effect, ci = ci, effect.name = effect.name, effect.type = effect.type, conf.level = conf.level)
@@ -198,7 +198,7 @@ effect.rd.row.by.col <- function (x, y, conf.level = 0.95) {
         if (is.null(nrow(ci))) {
             dim(ci) <- c(1, length(ci))
         }
-        effect.name <- paste0(rownames(tab)[1], ", ", paste(colnames(tab)[-1], colnames(tab)[1], sep = " minus "))
+        effect.name <- paste0("Event: ", rownames(tab)[1], ", ", paste(colnames(tab)[-1], colnames(tab)[1], sep = " minus "))
         effect.type <- "Risk difference (Wald CI)"
     }    
     list(effect = effect, ci = ci, effect.name = effect.name, effect.type = effect.type, conf.level = conf.level)
@@ -229,7 +229,7 @@ effect.or.col.by.row <- function (x, y, conf.level = 0.95) {
         if (is.null(nrow(ci))) {
             dim(ci) <- c(1, length(ci))
         }
-        effect.name <- paste0(rownames(tab)[1], ", ", paste(colnames(tab)[-1], colnames(tab)[1], sep = " vs "))
+        effect.name <- paste0("Event: ", rownames(tab)[1], ", ", paste(colnames(tab)[-1], colnames(tab)[1], sep = " vs "))
         effect.type <- "Odds ratio (Wald CI)"
     }    
     list(effect = effect, ci = ci, effect.name = effect.name, effect.type = effect.type, conf.level = conf.level)
@@ -260,7 +260,7 @@ effect.rr.col.by.row <- function (x, y, conf.level = 0.95) {
         if (is.null(nrow(ci))) {
             dim(ci) <- c(1, length(ci))
         }
-        effect.name <- paste0(rownames(tab)[1], ", ", paste(colnames(tab)[-1], colnames(tab)[1], sep = " vs "))
+        effect.name <- paste0("Event: ", rownames(tab)[1], ", ", paste(colnames(tab)[-1], colnames(tab)[1], sep = " vs "))
         effect.type <- "Relative risk (Wald CI)"
     }    
     list(effect = effect, ci = ci, effect.name = effect.name, effect.type = effect.type, conf.level = conf.level)
@@ -291,7 +291,7 @@ effect.rd.col.by.row <- function (x, y, conf.level = 0.95) {
         if (is.null(nrow(ci))) {
             dim(ci) <- c(1, length(ci))
         }
-        effect.name <- paste0(rownames(tab)[1], ", ", paste(colnames(tab)[-1], colnames(tab)[1], sep = " minus "))
+        effect.name <- paste0("Event: ", rownames(tab)[1], ", ", paste(colnames(tab)[-1], colnames(tab)[1], sep = " minus "))
         effect.type <- "Risk difference (Wald CI)"
     }    
     list(effect = effect, ci = ci, effect.name = effect.name, effect.type = effect.type, conf.level = conf.level)
@@ -449,10 +449,12 @@ effect.diff.median <- function(x, g, conf.level = 0.95, R = 500) {
         ## Je ne sais pas quel effet calculer par defaut quand il existe plus de 2 categories en colonne
         effect <- NULL
         ci <- NULL
+        effect.name <- NULL
         effect.type <- NULL
         conf.level <- NULL
     } else if (length(ng) == 2) {
         effect <- unname(diff(rev(tapply(x, g, median, na.rm = TRUE))))
+        effect.name <- paste(names(ng), collapse = " minus ")
         
         beffect <- vector("numeric", R)
         for (i in 1:R) {
@@ -466,7 +468,7 @@ effect.diff.median <- function(x, g, conf.level = 0.95, R = 500) {
         dim(ci) <- c(1, 2)
         effect.type <- "Difference in medians (bootstrap CI)"
     }
-    list(effect = effect, ci = ci, effect.type = effect.type, conf.level = conf.level)
+    list(effect = effect, ci = ci, effect.name = effect.name, effect.type = effect.type, conf.level = conf.level)
 }
 
 ##' Effect measure for association between one consored variable and one categorical variable
